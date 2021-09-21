@@ -85,21 +85,21 @@ In my case, my IP is `192.168.1.11`.
 If you cannot find such an entry, you might have miss-configured your SSID/Password on previous steps.
 
 At this point, you whole environment is set! However, if you want to deploy an SSH server and connect remotely to the Raspberry PI,
-do the following:
-1. Enable the ssh service so it runs every time you reboot your Raspberry PI. 
-`sudo systemctl enable ssh.service`
-2. Restart the ssh service to use it now.
-`sudo systemctl restart ssh.service`
-If it asks for your Username/Password, enter:
-Username: `pi`
-Password: `raspberry`
-The operations should complete without a fail.
-Now you may connect to the remote pi from your host machine by connecting to it. 
-3. To do so run on your computer (which must be connected on the same router):
-`ssh pi@IP_OF_THE_RASPBERRY` in my case 
-`ssh pi@192.168.1.11`
-4. The first time you connect, you should see something like this.
-![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/imgs/ssh.png)
-5. Type `yes` and then write `raspberry` when it asks for the password.
-6. Finally you will be connected to the Raspberry PI remotely, running on bash!
-7. You may now even disconnect the HDMI screen and the usb keyboard from the Raspberry, since you may do everything remotely (you only need the power cable)!
+do the following:  
+1. Enable the ssh service so it runs every time you reboot your Raspberry PI.  
+`sudo systemctl enable ssh.service`  
+2. Restart the ssh service to use it now.  
+`sudo systemctl restart ssh.service`  
+If it asks for your Username/Password, enter:  
+Username: `pi`  
+Password: `raspberry`  
+The operations should complete without a fail.  
+Now you may connect to the remote pi from your host machine by connecting to it.  
+3. To do so run on your computer (which must be connected on the same router):  
+`ssh pi@IP_OF_THE_RASPBERRY` in my case  
+`ssh pi@192.168.1.11`  
+4. The first time you connect, you should see something like this.  
+![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/imgs/ssh.png)  
+5. Type `yes` and then write `raspberry` when it asks for the password.  
+6. Finally you will be connected to the Raspberry PI remotely, running on bash!  
+7. You may now even disconnect the HDMI screen and the usb keyboard from the Raspberry, since you may do everything remotely (you only need the power cable)!  
