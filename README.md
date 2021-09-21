@@ -31,19 +31,18 @@ We support two different ways of setting up Raspbery PI.
 `sudo ./balenaEtcher-YOUR_VERSION.AppImage` 
 (We need sudo since we will alter the micro sd card which is a device. Enter your password if needed)
 3. A new window will pop up and might look like this:  
-![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/imgs/etcher.png)  
+![](imgs/etcher.png?raw=true)  
 4. Click `Flash from file` to start installing the OS to the sd card
 5. A new window will pop up and should look like this:  
-![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/imgs/etcher_os.png)  
+![](imgs/etcher_os.png?raw=true)  
 6. Select the downloaded [Raspian image at step 1.](#Requirements) in my case, `2021-05-07-raspios-buster-armhf-lite.zip`
 7. On the main screen click `Change` if the selected device is not your sd card (the provided sd card is 16GB, so you should see something similar on your program)  
-![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/imgs/etcher.png)  
+![](imgs/etcher.png?raw=true)  
 8. Now you may click `Flash!` to start installing the Operating System (It might take some take to complete).
 Your screen should now look like this:  
-![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/imgs/etcher_flash.png)  
+![](imgs/etcher_flash.png?raw=true)  
 9. Finally, when it completes, your screen should look like this  
-![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/imgs/etcher_complete.png)
-
+![](imgs/etcher_complete.png?raw=true)  
 10. At this point, you are ready to eject the micro sd card from your computer, and insert it to the Raspberry PI!
 
 #### Raspberry PI Overview
@@ -53,15 +52,15 @@ In order to properly config your system you will need to:
 3. Connect a keyboard to it (a converter is provided in the bundle (a black cable), that should be connected with a keyboard (not provided))
 4. Connect the Raspberry to the charger (It is provided)
 5. When all the components are connected, my setup looks like this (make sure to connect the charger on the port that says **PWR**):
-![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/imgs/rpi.png)
+![](imgs/rpi.png?raw=true)  
 
 The green light means your device is on!
 
 #### OS Configuration
 1. Switch to your HDMI screen now. After some time (when no new text is being printed) your screen should look like this:
 
-![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/imgs/screen.jpg)
 
+![](imgs/screen.jpg?raw=true)  
 2. The credentials for the user are:
 Username: `pi`  
 Password: `raspberry`  
@@ -70,17 +69,17 @@ So type in `pi` and press enter. Then on password type `raspberry` and press ent
 4. The last step here is to setup the Wifi. To do so, type  
 `sudo raspi-config`.  
 A new screen should pop up that looks like this:  
-![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/imgs/raspi.jpg)  
+![](imgs/raspi.jpg?raw=true)  
 5. Select the Option: `1 System Options` and press enter.  
 Then select `S1 Wireless LAN` and press enter.  
 A new window will pop up with countries. `Do select your country` and press enter.  
 Then the SSID of your WiFI will be asked. `Insert the correct name` and press enter.  
-![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/imgs/ssid.png)  
+![](imgs/ssid.png?raw=true)  
 Then the password for the WiFi will be asked. `Insert the correct password` and press enter.  
-![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/imgs/pass.jpg)  
+![](imgs/pass.jpg?raw=true)  
 6. Then select `<Finish>` on the main screen (of step 4) and you should be be back to the shell!
 7. To verify you are connected to the network, try running `ifconfig` and find the entry containing `wlan0`:  
-![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/imgs/wlan0.png)  
+![](imgs/wlan0.png?raw=true)  
 In my case, my IP is `192.168.1.11`. 
 If you cannot find such an entry, you might have miss-configured your SSID/Password on previous steps.
 
@@ -99,7 +98,7 @@ Now you may connect to the remote pi from your host machine by connecting to it.
 `ssh pi@IP_OF_THE_RASPBERRY` in my case  
 `ssh pi@192.168.1.11`  
 4. The first time you connect, you should see something like this.  
-![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/imgs/ssh.png)  
+![](imgs/ssh.png?raw=true)  
 5. Type `yes` and then write `raspberry` when it asks for the password.  
 6. Finally you will be connected to the Raspberry PI remotely, running on bash!  
 7. You may now even disconnect the HDMI screen and the usb keyboard from the Raspberry, since you may do everything remotely (you only need the power cable)!  
