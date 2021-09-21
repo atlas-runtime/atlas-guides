@@ -25,12 +25,11 @@ foreach (let func in la)
     atlas.schedule(func, [args]) 
 ```
 The `wrap` calls detect and hooks all the potential code (either functions or objects) from a Javascript source file.  
-The `init` function prepares and setup the `atlas` ecosystem:
-
- - Parse `atlas-addesses.txt` (contains all the SGX nodes [Port IP]) and setup sockets
- - Allocate and create secure connections (crypto key allocation and handshake) for all the servers
- - Allocate local workers (that communicate with the remote SGX workers)
- - Distribute and assign the remote SGX workers to the local workers
+The `init` function prepares and setup the `atlas` ecosystem by doing the following actions:  
+ 1. Parse `atlas-addesses.txt` (contains all the SGX nodes [Port IP]) and setup sockets
+ 2. Allocate and create secure connections (crypto key allocation and handshake) for all the servers
+ 3. Allocate local workers (that communicate with the remote SGX workers)
+ 4. Distribute and assign the remote SGX workers to the local workers
 At this point, we can start offloading the functions (by calling the `schedule` function) and wait the results (async)
 
 ## Installation
@@ -54,12 +53,13 @@ $ cd $ATLAS_ROOT/atlas/client
 ```
 
 #### Setting up the SGX environment
-Be sure to install  [Intel SGX SDK](https://github.com/intel/linux-sgx) and [Intel SGX Driver](https://github.com/intel/linux-sgx-driver)
+Be sure to **setup and install**  [Intel SGX SDK](https://github.com/intel/linux-sgx) and [Intel SGX Driver](https://github.com/intel/linux-sgx-driver).  
+These components are needed in order for atlas to work properly.
 ```sh
 $ source the your SGX environment
 source /opt/intel/sgxsdk/environment
 # enter the source code folder of SGX worker 
-$ cd $ATLAS_ROOT/sgx-worker
+$ cd $ATLAS_ROOT/atlas-worker
 # build the atlas worker enclave binary
 # If you have Intel SGX enabled and running, you may use hardware mode `SGX_MODE=HW`
 # If you want to try atlas without the underlying SGX capabilities you may use simulated mode `SGX_MODE=SIM`
@@ -130,7 +130,7 @@ The three main components are:
 
 * [atlas-client](../atlas-client): The orchestrating component of the eco-system.  It is responsible for conneting to the servers,  identifying the critical functions of a library/module, allocating cryptographic keys, offloading client requests to atlas servers and parsing the results. Combines the `analyses` and the `quickjs` module. 
 
-* [sgx-worker](../runtime):  Stripped down-optimized Javascript Interpreter packed inside the SGX enclave. Setups trusted connection with the client and  upon it request receival, it evaluates and processes them inside the enclave. Code that may tamper/leak the contets of the enclave is removed/unsupported such as system-calls, calls to untrusted part of the application or signals. 
+* [atlas-worker](../runtime):  Stripped down-optimized Javascript Interpreter packed inside the SGX enclave. Setups trusted connection with the client and  upon it request receival, it evaluates and processes them inside the enclave. Code that may tamper/leak the contets of the enclave is removed/unsupported such as system-calls, calls to untrusted part of the application or signals. 
 * [quickjs](../quickjs): Javascript Interpreter that runs on the client device. Enhanced version of [QuickJS](https://bellard.org/quickjs/quickjs.html) with networking, cryptographic capabilities and other `atlas` functionality.
 
 ## What next?
