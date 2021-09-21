@@ -54,12 +54,29 @@ $ cd $ATLAS_ROOT/atlas/client
 ```
 
 #### Setting up the SGX environment
-Be sure to install  [Intel SGX SDK](https://github.com/intel/linux-sgx) and [Intel SGX Driver](https://github.com/intel/linux-sgx-driver)
+If you want to try atlas **without** using real SGX hardware you do not have to setup  
+the whole SGX infrastructure (as shown below)  
 ```sh
-$ source the your SGX environment
-source /opt/intel/sgxsdk/environment
+# goto SGX folder 
+cd SGX
+# execute the binary that setups the SGX SDK
+./sgx_linux_x64_sdk_2.14.100.2.bin
+# when it asks if you want to install to current directory select `yes` (or choose the directory you want)
+# finally a `source` command will appear that you need to execute, in my case:  
+source /home/dkarnikis/SGX/sgxsdk/environment
+# You are now set to run atlas on simulation mode!
+```
+
+**SUGGUESTED** Be sure to follow and install  [Intel SGX SDK](https://github.com/intel/linux-sgx) and [Intel SGX Driver](https://github.com/intel/linux-sgx-driver)  
+if you want to use SGX hardware.
+
+
+#### Running SGX applications
+```sh
+# source the your SGX environment, in my case
+$ source /home/dkarnikis/SGX/sgxsdk/environment
 # enter the source code folder of SGX worker 
-$ cd $ATLAS_ROOT/sgx-worker
+$ cd $ATLAS_ROOT/atlas-worker
 # build the atlas worker enclave binary
 # If you have Intel SGX enabled and running, you may use hardware mode `SGX_MODE=HW`
 # If you want to try atlas without the underlying SGX capabilities you may use simulated mode `SGX_MODE=SIM`
@@ -94,6 +111,14 @@ In all the above cases, launching the container is done via:
 docker run --name atlas-docker -it atlas-artifact
 ```
 -->
+#### Building Atlas client
+```sh
+# go to the directory of the quickjs
+$ cd $ATLAS_ROOT/quickjs/src
+# It will take some time to build the standalone quickjs interpreter
+$ make 
+# after this point, the binary is generated called qjs
+```
 
 ## Running Scripts
 
