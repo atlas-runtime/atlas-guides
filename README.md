@@ -73,8 +73,8 @@ A new screen should pop up that looks like this:
 ![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/raspi.jpg)  
 5. Select the Option: `1 System Options` and press enter.  
 Then select `S1 Wireless LAN` and press enter.  
-A new window will pop up with countries. `Do select your country` and press enter  
-Then the SSID of your WiFI will be asked. `Insert the correct name` and press enter  
+A new window will pop up with countries. `Do select your country` and press enter.  
+Then the SSID of your WiFI will be asked. `Insert the correct name` and press enter.  
 ![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/ssid.png)  
 Then the password for the WiFi will be asked. `Insert the correct password` and press enter.  
 ![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/pass.jpg)  
