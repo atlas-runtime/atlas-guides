@@ -13,7 +13,7 @@ available Linux distros but also to different Linux environments. Additionally, 
 ## Installation
 We support two different ways of setting up Raspbery PI.
 1.  Vanilla raspbian installation (Atlas components will be built later) 
-2.  Custom raspbian image packed with Atlas and its dependencies
+2.  Custom raspbian image packed with Atlas and its dependencies **TODO**
 
 ### Vanilla Installation
 #### Requirements
