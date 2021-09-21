@@ -63,15 +63,14 @@ The green light means your device is on!
 ![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/screen.jpg)
 
 2. The credentials for the user are:
-Username: `pi`
-Password: `raspberry`
-So type in `pi` and press enter. Then on password type `raspberry` and press enter.
-3. After succesfully logging in, you are using a fully fledged Linux environment with `bash`!
-4. The last step here is to setup the Wifi. To do so, type 
-`sudo raspi-config`. 
-A new screen should pop up that looks like this:
-![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/raspi.jpg)
-
+Username: `pi`  
+Password: `raspberry`  
+So type in `pi` and press enter. Then on password type `raspberry` and press enter.  
+3. After succesfully logging in, you are using a fully fledged Linux environment with `bash`!  
+4. The last step here is to setup the Wifi. To do so, type  
+`sudo raspi-config`.  
+A new screen should pop up that looks like this:  
+![](https://raw.githubusercontent.com/dkarnikis/rpi_atlas_tutorial/main/raspi.jpg)  
 5. Select the Option: `1 System Options` and press enter.  
 Then select `S1 Wireless LAN` and press enter.  
 A new window will pop up with countries. `Do select your country` and press enter  
