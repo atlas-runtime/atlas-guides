@@ -1,0 +1,11 @@
+version: "3.3"
+services:
+  sgx:
+    build: 
+        context: .
+        dockerfile: docker/Dockerfile
+    network_mode: host
+    command: tail -f /dev/null
+    container_name: atlas_docker
+    devices:
+    - "/dev/isgx:/dev/isgx"
