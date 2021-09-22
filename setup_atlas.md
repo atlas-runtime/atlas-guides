@@ -1,7 +1,7 @@
 # A Short Atlas Tutorial
 Quick jump: [Introduction](#introduction) | [Installation](#installation) | [Repo Structure](#repo-structure) | [Running Scripts](#running-scripts) | [What Next?](#what-next)
 
-This short tutorial covers `atlas`'s main functionality.
+This short tutorial covers `atlas`'s main functionality and installation.
 
 ## Introduction
 
