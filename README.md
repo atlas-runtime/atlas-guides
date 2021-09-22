@@ -7,8 +7,7 @@
 
 ## Operating System
 Atlas should be capable of running to any available Linux distribution.
-For this tutorial, we will be following [Raspbian OS](https://www.raspbian.org/) but this guide may also be applied to the other 
-available Linux distros but also to different Linux environments. Additionally, this guide uses Ubuntu 20.10 as host machine.
+For this tutorial, we will be installing [Raspbian OS](https://www.raspbian.org/) but this guide may also be applied to the install different Linux distros/environments. Additionally, this guide uses Ubuntu 20.10 as host machine.
 
 ## Installation
 We support two different ways of setting up Raspbery PI.
@@ -58,13 +57,12 @@ The green light means your device is on!
 
 #### OS Configuration
 1. Switch to your HDMI screen now. After some time (when no new text is being printed) your screen should look like this:
-
-
 ![](imgs/screen.jpg?raw=true)  
-2. The credentials for the user are:
+2. The default credentials for Raspbian OS are:
 Username: `pi`  
 Password: `raspberry`  
-So type in `pi` and press enter. Then on password type `raspberry` and press enter.  
+(**for other distros the credentials might be different**)
+Type in `pi` and press enter. Then when it asks for password type `raspberry` and press enter.  
 3. After succesfully logging in, you are using a fully fledged Linux environment with `bash`!  
 4. The last step here is to setup the Wifi. To do so, type  
 `sudo raspi-config`.  
@@ -83,8 +81,7 @@ Then the password for the WiFi will be asked. `Insert the correct password` and 
 In my case, my IP is `192.168.1.11`. 
 If you cannot find such an entry, you might have miss-configured your SSID/Password on previous steps.
 
-At this point, you whole environment is set! However, if you want to deploy an SSH server and connect remotely to the Raspberry PI,
-do the following:  
+At this point, you whole environment is set! However, if you want to deploy an SSH server and connect remotely your Raspberry PI, do the following:  
 1. Enable the ssh service so it runs every time you reboot your Raspberry PI.  
 `sudo systemctl enable ssh.service`  
 2. Restart the ssh service to use it now.  

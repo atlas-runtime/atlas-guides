@@ -1,11 +1,11 @@
 # A Short Atlas Tutorial
-Quick jump: [Introduction](#introduction) | [Installation](#installation) | [Repo Structure](#structure) | [Running Scripts](#running-scripts) | [What Next?](#what-next)
+Quick jump: [Introduction](#introduction) | [Installation](#installation) | [Repo Structure](#repo-structure) | [Running Scripts](#running-scripts) | [What Next?](#what-next)
 
 This short tutorial covers the `atlas`'s main functionality.
 
 ## Introduction
 
-Atlas is a system for identifying and offloading bottlenecked/critical Javascript code with trusted execution in mind.
+Atlas is a system for identifying and offloading bottlenecked/critical JavaScript code with trusted execution in mind.
 Atlas is based on two main components:
 * Atlas-client
     Modified QuickJS engine with enhanced with networking, cryptography and other components 
@@ -13,37 +13,36 @@ Atlas is based on two main components:
     Modified QuickJS engine packed with an Intel SGX enclave enhanced with various security attributes
 ### High level overview of Atlas
 
-Consider the following Javascript code  
+Consider the following JavaScript code  
 ```js
-import lib_a as la
-import atlas as atlas
-atlas.wrap(la)
-# Init the atlas execution 
+import {lib_a_} from './library_a.js';
+import {atlas} from './atlas.js';
+atlas.wrap(lib_a)
+# Bootstrap the servers and setup the communicate channel 
 atlas.init()
 # start offloading the functions to the cloud 
-foreach (let func in la) 
+for (let func in lib_a) 
     atlas.schedule(func, [args]) 
 ```
-The `wrap` calls detect and hooks all the potential code (either functions or objects) from a Javascript source file.  
-The `init` function prepares and setup the `atlas` ecosystem by doing the following actions:  
- 1. Parse `atlas-addesses.txt` (contains all the SGX nodes [Port IP]) and setup sockets
- 2. Allocate and create secure connections (crypto key allocation and handshake) for all the servers
- 3. Allocate local workers (that communicate with the remote SGX workers)
- 4. Distribute and assign the remote SGX workers to the local workers
-At this point, we can start offloading the functions (by calling the `schedule` function) and wait the results (async)
+`atlas.wrap` calls detect and hooks all the potential code (either functions or objects) from a JavaScript source file.  
+The `atlas.init` function prepares and setups the `atlas` eco-system by doing the following actions:  
+ 1. Parses `atlas-addesses.txt` (contains all the SGX nodes [Port IP]) and setups sockets
+ 2. Allocates and creates secure communicate channels (generate a shared encryption key for each remote worker)
+ 3. Allocates local threads (that communicate with the remote SGX workers)
+ 4. Pairs the local threads to the remote workers
+At this point, we can start offloading requests (by calling the `schedule` function) and then wait for the execution results (run in async)
 
 ## Installation
 
 ### Natively on Linux
 
-On any Linux distribution, installing and setting up `atlas` is easy and is split into two sections:
-
+On any Linux distribution, installing and setting up `atlas` is easy and is split into two sections:  
  1. Install the client code
  2. Install and deploy on the cloud/local with SGX hardware/simulation mode
 
 #### Setting up the client environment
 ```sh
-# enter the source code folder of QuickJS for the client 
+# enter the source code folder of QuickJS for the client where $ATLAS_ROOT is the root folder of the atlas repo
 $ cd $ATLAS_ROOT/quickjs/src
 # build the client code, it will generate qjs binary 
 $ make qjs
@@ -54,12 +53,13 @@ $ cd $ATLAS_ROOT/atlas/client
 $ cat $ATLAS_ROOT/atlas_client/atlas-addresses.txt
 # 7000 127.0.0.1
 # 7001 127.0.0.1
-# that will use max two servers, listening to ports 7000 and 7001
+# i may use max two servers, listening to ports 7000 and 7001
 ```
 
 #### Setting up the SGX environment
 ##### Simulation Mode
-If you want to try atlas **without** using real SGX hardware you do not have to setup the whole SGX infrastructure (as shown below)  
+(If you want to install with hardware support, skip this step)  
+If you want to try atlas **without** using real SGX hardware you do not have to setup the whole SGX infrastructure
 ```sh
 # goto SGX folder of this repo
 cd SGX
@@ -71,14 +71,15 @@ source /home/dkarnikis/SGX/sgxsdk/environment
 # You are now set to run atlas on simulation mode!
 ```
 ##### Hardware Mode
+(If you have installed the simulated software, skip this step)
 **SUGGUESTED** Be sure to follow the guide and install  [Intel SGX SDK](https://github.com/intel/linux-sgx) and [Intel SGX Driver](https://github.com/intel/linux-sgx-driver)  
 if you want to use SGX hardware.
 
-### Running SGX applications
+### Running atlas-workers with SGX HW/SIM
 ```sh
 # source the your SGX environment, in my case
 $ source /home/dkarnikis/SGX/sgxsdk/environment
-# enter the source code folder of SGX worker 
+# enter the source code folder of the atlas-worker 
 $ cd $ATLAS_ROOT/atlas-worker
 # build the atlas worker enclave binary
 # If you have Intel SGX enabled and running, you may use hardware mode `SGX_MODE=HW`
@@ -118,7 +119,7 @@ docker run --name atlas-docker -it atlas-artifact
 $ cd $ATLAS_ROOT/quickjs/src
 # It will take some time to build the standalone quickjs interpreter
 $ make 
-# after this point, the binary is generated called qjs
+# after this point, the binary is generated and is called qjs
 ```
 
 ## Running Scripts
@@ -127,8 +128,8 @@ All scripts in this guide assume that are being executed from  `$ATLAS_ROOT/atla
 
 ### Hash Example
 
-The simplest test to try out `atlas` is SHA512, that performs simple has calls to input data.  
-The file is located at `$ATLAS_ROOT/atlas-client/macro/crypto/streaming.js`  
+The simplest way to try out `atlas` is executing remotely `SHA512`, that performs the respective hash function to the input data.  
+The file JavaScript file is located at `$ATLAS_ROOT/atlas-client/macro/crypto/streaming.js`  
 To run it **locally and sequentially**, you would call it using `--local` flag:  
 ```sh
 $ATLAS_ROOT/quickjs/src/qjs daemon.sh --local --file macro/crypto/streaming.js
@@ -149,16 +150,14 @@ $ATLAS_ROOT/quickjs/src/qjs daemon.js --local --threads 2 --servers 2 --file mac
 ## Repo Structure
 
 Atlas consist of four main components and a few additional "auxiliary" files and directories.  
-The three main components are:  
+The four main components are:  
 * [analyses](../analyses/): **TODO**
-
-* [atlas-client](../atlas-client): The orchestrating component of the eco-system.  It is responsible for conneting to the servers,  identifying the critical functions of a library/module, allocating cryptographic keys, offloading client requests to atlas servers and parsing the results. Combines the `analyses` and the `quickjs` module. 
-
-* [atlas-worker](../runtime):  Stripped down-optimized Javascript Interpreter packed inside the SGX enclave. Setups trusted connection with the client and  upon it request receival, it evaluates and processes them inside the enclave. Code that may tamper/leak the contets of the enclave is removed/unsupported such as system-calls, calls to untrusted part of the application or signals. 
-* [quickjs](../quickjs): Javascript Interpreter that runs on the client device. Enhanced version of [QuickJS](https://bellard.org/quickjs/quickjs.html) with networking, cryptographic capabilities and other `atlas` functionality.
+* [atlas-client](../atlas-client): The orchestrating component of the eco-system. It is responsible for connecting to the remote `atlas-workers`,  identifying the critical components of a library/module, allocating and generating cryptographic keys, offloading client requests to atlas servers and parsing the execution results. It combines the `analyses` library and the `quickjs` module. 
+* [atlas-worker](../runtime):  Stripped down-optimized JavaScript interpreter packed inside the SGX enclave. It setups a trusted end-to-end trusted communication channel with the client and then starts handling and executing offloading requests within the enclave. Code that may tamper or compromise enclave's confidentiality and integrity is stripped from the interpreter such as system-calls, calls to the untrusted part of the application or signals. 
+* [quickjs](../quickjs): JavaScript Interpreter that runs on the client device. It is an enhanced version of [QuickJS](https://bellard.org/quickjs/quickjs.html) with native networking and cryptographic capabilities and other `atlas` features.
 
 ## What next?
-* Configurable Scheduler
+* Configurable Scheduler and rules
 * Android Port
-* Battery Management
+* Battery Performance Logging
 * IoT deployment
