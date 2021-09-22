@@ -7,9 +7,9 @@ This short tutorial covers `atlas`'s main functionality and installation.
 
 Atlas is a system for identifying and offloading bottlenecked/critical JavaScript code with trusted execution in mind.
 Atlas is based on two main components:
-* Atlas-client
+* atlas-client
     Modified QuickJS engine with enhanced with networking, cryptography and other components 
-* Atlas-worker
+* atlas-worker
     Modified QuickJS engine packed with an Intel SGX enclave enhanced with various security attributes
 ### High level overview of Atlas
 
@@ -25,7 +25,7 @@ for (let func in lib_a)
     atlas.schedule(func, [args]) 
 ```
 `atlas.wrap` calls detect and hooks all the potential code (either functions or objects) from a JavaScript source file.  
-The `atlas.init` function prepares and setups the `atlas` eco-system by doing the following actions:  
+The `atlas.init` function prepares and setups the atlas eco-system by doing the following actions:  
  1. Parses `atlas-addesses.txt` (contains all the SGX nodes [Port IP]) and setups sockets
  2. Allocates and creates secure communicate channels (generate a shared encryption key for each remote worker)
  3. Allocates local threads (that communicate with the remote SGX workers)
@@ -36,7 +36,7 @@ At this point, we can start offloading requests (by calling the `schedule` funct
 
 ### Natively on Linux
 
-On any Linux distribution, installing and setting up `atlas` is easy and is split into two sections:  
+On any Linux distribution, installing and setting up atlas is easy and is split into two sections:  
  1. Install the client code
  2. Install and deploy on the cloud/local with SGX hardware/simulation mode
 
@@ -90,13 +90,12 @@ $ make SGX_MODE=HW/SIM
 Atlas on Docker is useful when native installation is not an option -- for example, to allow development on Windows and OS X.  
 Note that Atlas on Docker may or may not be able to exploit all available hardware resources.  
 There are several options for installing Atlas via Docker.  
-**TODO**
 The easiest is to `pull` the docker image **TODO**  
 ```sh
 docker pull atlas_docker:v0.1 
 ```
 We refresh this image on every major release.  
-[//]: # (TODO: Need to automate this per commit.)  
+(**TODO**: Need to automate this per commit.)  
 In case you don't have or don't want to use native SGX support, delete the last two lines from the  
 docker-compose.yaml (those that contain devices and /dev/isgx) so that your file may look like this:  
 ```sh
@@ -134,13 +133,13 @@ $ make
 All scripts in this guide assume that are being executed from  `$ATLAS_ROOT/atlas-client`
 ### Hash Example
 
-The simplest way to try out `atlas` is executing remotely `SHA512`, that performs the respective hash function to the input data.  
+The simplest way to try out atlas is executing remotely `SHA512`, that performs the respective hash function to the input data.  
 The file JavaScript file is located at `$ATLAS_ROOT/atlas-client/macro/crypto/streaming.js`  
 To run it **locally and sequentially**, you would call it using `--local` flag:  
 ```sh
 $ATLAS_ROOT/quickjs/src/qjs daemon.sh --local --file macro/crypto/streaming.js
 ```
-To run it **remotely** and assuming you have two servers and two local workers: 
+To run it **remotely** and assuming you have two servers and two local threads: 
 ```sh
 # On the remote workers on the ports of your choice (7000, 7001 in my case)
 ./app -p 7001
@@ -150,7 +149,27 @@ $ cat $ATLAS_ROOT/atlas_client/atlas-addresses.txt
 # 7000 127.0.0.1
 # 7001 127.0.0.1
 ##################
-$ATLAS_ROOT/quickjs/src/qjs daemon.js --local --threads 2 --servers 2 --file macro/crypto/streaming.js
+$ATLAS_ROOT/quickjs/src/qjs daemon.js --threads 2 --servers 2 --file macro/crypto/streaming.js
+```
+The expected output log should be something similar to this (depending also on your hardware, network and offloading function)  
+```sh
+$ stdbuf -oL ../quickjs/src/qjs daemon.js --file macro/crypto/streaming.js --threads 2 --servers 2
+#Started Duration Latency Bytes Interval Return Mode Thread_ID Type Function 
+1.001   8.895   8.909   500000  800     9.91    remote  0       exec    SHA512  0 
+1.802   11.591  11.601  500000  800     13.403  remote  1       exec    SHA512  1 
+2.603   11.322  18.637  500000  800     21.24   remote  0       exec    SHA512  2 
+3.404   9.801   19.808  500000  800     23.212  remote  1       exec    SHA512  3 
+4.206   10.881  27.924  500000  800     32.13   remote  0       exec    SHA512  4 
+5.007   10.277  28.491  500000  800     33.498  remote  1       exec    SHA512  5 
+5.808   9.715   36.046  500000  800     41.854  remote  0       exec    SHA512  6 
+6.609   10.547  37.445  500000  800     44.054  remote  1       exec    SHA512  7 
+7.41    11.236  45.688  500000  800     53.098  remote  0       exec    SHA512  8 
+8.211   10.393  46.244  500000  800     54.455  remote  1       exec    SHA512  9 
+9.012   10.565  54.66   500000  800     63.672  remote  0       exec    SHA512  10 
+9.813   10.821  55.472  500000  700     65.285  remote  1       exec    SHA512  11 
+10.513  7.44    60.607  500000  700     71.12   remote  0       exec    SHA512  12 
+11.915  9.211   68.424  500000  700     80.339  remote  0       exec    SHA512  13 
+11.214  15.634  69.714  500000  700     80.928  remote  1       exec    SHA512  14 
 ```
 
 ## Repo Structure
