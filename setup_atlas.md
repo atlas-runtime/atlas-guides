@@ -46,17 +46,17 @@ On any Linux distribution, installing and setting up `atlas` is easy and is spli
 # enter the source code folder of QuickJS for the client 
 $ cd $ATLAS_ROOT/quickjs/src
 # build the client code, it will generate qjs binary 
-$ make qjs; cp qjs ../
+$ make qjs
 # return to the root directory and go to atlas-client 
 $ cd $ATLAS_ROOT/atlas/client 
 # edit the `atlas-addresses.txt` with your configuration in format `PORT IP`
 ```
 
 #### Setting up the SGX environment
-If you want to try atlas **without** using real SGX hardware you do not have to setup  
-the whole SGX infrastructure (as shown below)  
+##### Simulation Mode
+If you want to try atlas **without** using real SGX hardware you do not have to setup the whole SGX infrastructure (as shown below)  
 ```sh
-# goto SGX folder 
+# goto SGX folder of this repo
 cd SGX
 # execute the binary that setups the SGX SDK
 ./sgx_linux_x64_sdk_2.14.100.2.bin
@@ -65,12 +65,11 @@ cd SGX
 source /home/dkarnikis/SGX/sgxsdk/environment
 # You are now set to run atlas on simulation mode!
 ```
-
+##### Hardware Mode
 **SUGGUESTED** Be sure to follow the guide and install  [Intel SGX SDK](https://github.com/intel/linux-sgx) and [Intel SGX Driver](https://github.com/intel/linux-sgx-driver)  
 if you want to use SGX hardware.
 
-
-#### Running SGX applications
+### Running SGX applications
 ```sh
 # source the your SGX environment, in my case
 $ source /home/dkarnikis/SGX/sgxsdk/environment
@@ -110,7 +109,7 @@ In all the above cases, launching the container is done via:
 docker run --name atlas-docker -it atlas-artifact
 ```
 -->
-#### Building Atlas client
+### Building Atlas client
 ```sh
 # go to the directory of the quickjs
 $ cd $ATLAS_ROOT/quickjs/src
@@ -144,12 +143,10 @@ $ cat $ATLAS_ROOT/atlas_client/atlas-addresses.txt
 $ATLAS_ROOT/quickjs/src/qjs daemon.js --local --threads 2 --servers 2 --file macro/crypto/streaming.js
 ```
 
-
 ## Repo Structure
 
-Atlas consist of four main components and a few additional "auxiliary" files and directories. 
-The three main components are:
-
+Atlas consist of four main components and a few additional "auxiliary" files and directories.  
+The three main components are:  
 * [analyses](../analyses/): **TODO**
 
 * [atlas-client](../atlas-client): The orchestrating component of the eco-system.  It is responsible for conneting to the servers,  identifying the critical functions of a library/module, allocating cryptographic keys, offloading client requests to atlas servers and parsing the results. Combines the `analyses` and the `quickjs` module. 
@@ -160,4 +157,4 @@ The three main components are:
 ## What next?
 * Configurable Scheduler
 * Android Port
-* BAttery Management
+* Battery Management
