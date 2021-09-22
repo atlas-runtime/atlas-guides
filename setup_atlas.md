@@ -50,6 +50,11 @@ $ make qjs
 # return to the root directory and go to atlas-client 
 $ cd $ATLAS_ROOT/atlas/client 
 # edit the `atlas-addresses.txt` with your configuration in format `PORT IP`
+# in my case my atlas-addresses.txt contains
+$ cat $ATLAS_ROOT/atlas_client/atlas-addresses.txt
+# 7000 127.0.0.1
+# 7001 127.0.0.1
+# that will use max two servers, listening to ports 7000 and 7001
 ```
 
 #### Setting up the SGX environment
@@ -93,11 +98,9 @@ The easiest is to `pull` the docker image
 ```sh
 docker pull 
 ```
-We refresh this image on every major release.
-
-[//]: # (TODO: Need to automate this per commit.)
-
-Alternatively, one can built the latest Docker container from scratch by running `docker build` in the repo:
+We refresh this image on every major release.  
+[//]: # (TODO: Need to automate this per commit.)  
+Alternatively, one can built the latest Docker container from scratch by running `docker build` in the repo:  
 ```sh
 docker build -t atlas-artifact .
 ```
@@ -130,7 +133,7 @@ To run it **locally and sequentially**, you would call it using `--local` flag:
 ```sh
 $ATLAS_ROOT/quickjs/src/qjs daemon.sh --local --file macro/crypto/streaming.js
 ```
-To run it **remotely** and assuming you have 2 servers and 2 local workers: 
+To run it **remotely** and assuming you have two servers and two local workers: 
 ```sh
 # On the remote workers on the ports of your choice (7000, 7001 in my case)
 ./app -p 7001
@@ -158,3 +161,4 @@ The three main components are:
 * Configurable Scheduler
 * Android Port
 * Battery Management
+* IoT deployment
