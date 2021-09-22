@@ -86,7 +86,6 @@ $ cd $ATLAS_ROOT/atlas-worker
 # If you want to try atlas without the underlying SGX capabilities you may use simulated mode `SGX_MODE=SIM`
 $ make SGX_MODE=HW/SIM
 ```
-<!---
 ### Docker
 
 **TODO SETUP OUR DOCKER**
@@ -95,24 +94,36 @@ Atlas on Docker is useful when native installation is not an option -- for examp
 Note that Atlas on Docker may or may not be able to exploit all available hardware resources.
 There are several options for installing Atlas via Docker.
 **TODO**
-The easiest is to `pull` the docker image 
+The easiest is to `pull` the docker image **TODO**
 ```sh
-docker pull 
+docker pull atlas_docker:v0.1 
 ```
 We refresh this image on every major release.  
 [//]: # (TODO: Need to automate this per commit.)  
-Alternatively, one can built the latest Docker container from scratch by running `docker build` in the repo:  
+In case you don't have or don't want to use native SGX support, delete the last two lines from the  
+docker-compose.yaml (those that contain devices and /dev/isgx) so that your file may look like this:  
 ```sh
-docker build -t atlas-artifact .
-```
-This will build a fresh Docker image using the latest commit---recommended for development.
-
-
-In all the above cases, launching the container is done via:
+cat docker-compose.yaml
+version: "3.3"                       
+services:                            
+  sgx:                               
+    build:                           
+        context: .                   
+        dockerfile: docker/Dockerfile
+    network_mode: host               
+    command: tail -f /dev/null       
+    container_name: atlas_docker     
+```  
+Alternatively, one can built the latest Docker container from scratch by running `docker-compose` in the repo:  
 ```sh
-docker run --name atlas-docker -it atlas-artifact
+# build the image
+docker-compose up --build -d.
+# run the image
+docker exec -it atlas_docker /bin/bash
+# you will be dropped into a shell in the container, ready to fetch and execute atlas and SGX binaries
+# when you want to close the container, you may run (on the same folder as before)
+docker-compose down
 ```
--->
 ### Building Atlas client
 ```sh
 # go to the directory of the quickjs
