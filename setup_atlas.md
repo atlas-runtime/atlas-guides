@@ -1,7 +1,7 @@
 # A Short Atlas Tutorial
 Quick jump: [Introduction](#introduction) | [Installation](#installation) | [Repo Structure](#repo-structure) | [Running Scripts](#running-scripts) | [What Next?](#what-next)
 
-This short tutorial covers the `atlas`'s main functionality.
+This short tutorial covers `atlas`'s main functionality.
 
 ## Introduction
 
@@ -87,14 +87,11 @@ $ cd $ATLAS_ROOT/atlas-worker
 $ make SGX_MODE=HW/SIM
 ```
 ### Docker
-
-**TODO SETUP OUR DOCKER**
-
-Atlas on Docker is useful when native installation is not an option -- for example, to allow development on Windows and OS X.
-Note that Atlas on Docker may or may not be able to exploit all available hardware resources.
-There are several options for installing Atlas via Docker.
+Atlas on Docker is useful when native installation is not an option -- for example, to allow development on Windows and OS X.  
+Note that Atlas on Docker may or may not be able to exploit all available hardware resources.  
+There are several options for installing Atlas via Docker.  
 **TODO**
-The easiest is to `pull` the docker image **TODO**
+The easiest is to `pull` the docker image **TODO**  
 ```sh
 docker pull atlas_docker:v0.1 
 ```
@@ -134,9 +131,7 @@ $ make
 ```
 
 ## Running Scripts
-
 All scripts in this guide assume that are being executed from  `$ATLAS_ROOT/atlas-client`
-
 ### Hash Example
 
 The simplest way to try out `atlas` is executing remotely `SHA512`, that performs the respective hash function to the input data.  
