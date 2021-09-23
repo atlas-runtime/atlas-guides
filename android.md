@@ -50,14 +50,18 @@ Official Guide [here](https://developer.android.com/studio/command-line/adb)
 Settings > Network & internet > Wi-Fi > The gear icon on the connected Wi-Fi > Advanced (on the bottom) > Under the IP address you may find you IP address (192.168.1.3 in my case)
 ```
 3. Then we will connect to the android device via adb connect  
+4. First of all, plug your device with usb to the computer
+5. run `adb tcpip 5555`
+6. Unplug your mobile device
+7. run
 `adb connect YOUR_IP:5555`, in my case  
 `adb connect 192.168.1.3:5555`
-4. `adb shell` to connect to the android shell
-5. `cd /data/local/tmp` is the folder where atlas will be placed
-6. The next step is to install the quickjs binaries to Android
-7. To do so, go to another terminal, back to the root of the atlas project (let's call it atlas-root) and do:  
+8. `adb shell` to connect to the android shell
+9. `cd /data/local/tmp` is the folder where atlas will be placed
+10. The next step is to install the quickjs binaries to Android
+11. To do so, go to another terminal, back to the root of the atlas project (let's call it atlas-root) and do:  
 `adb push atlas-root /data/local/tmp`
-8. Switch back to the android terminal, and now you may run you code (assuming that you have correctly configured atlas-addresses.txt) by doing:  
+12. Switch back to the android terminal, and now you may run you code (assuming that you have correctly configured atlas-addresses.txt) by doing:  
 ```sh
 # enter the root of atlas
 cd /data/local/tmp/atlas-root/atlas-client
