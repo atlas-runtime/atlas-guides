@@ -6,7 +6,7 @@
 
 
 ## Operating System
-Atlas should be capable of running to any available Linux distribution.
+Atlas should be capable of running to any available Linux distribution.  
 For this tutorial, we will be installing [Raspbian OS](https://www.raspbian.org/) but this guide may also be applied to the install different Linux distros/environments. Additionally, this guide uses Ubuntu 20.10 as host machine.
 
 ## Installation
