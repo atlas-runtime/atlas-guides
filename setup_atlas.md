@@ -226,7 +226,8 @@ You may use the same configuration for different benchmarks as well.
 We may run this benchmark by issuing:
 
 ```sh
-$ATLAS_ROOT/quickjs/src/qjs --file benchmarks/macro/eval/streaming.js --threads 4 --servers 4
+cd $ATLAS_ROOT/atlas-client
+$ATLAS_ROOT/quickjs/src/qjs atlas.js --file benchmarks/macro/eval/streaming.js --threads 4 --servers 4
 ```
 
 The execution log should similar to this:
