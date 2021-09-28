@@ -7,9 +7,9 @@ This short tutorial covers `atlas`'s main functionality and installation.
 
 Atlas is a system for identifying and offloading bottlenecked/critical JavaScript code with trusted execution in mind.
 Atlas is based on two main components:
-* atlas-client
-    Modified QuickJS engine with enhanced with networking, cryptography and other components 
-* atlas-worker
+* **atlas-client**
+    The orchistrating component written in JavaScript and is responsible for offloading execution requests. It also includes a modified QuickJS engine enhanced with networking, cryptography and other components
+* **atlas-worker**
     Modified QuickJS engine packed with an Intel SGX enclave enhanced with various security attributes
 ### High level overview of Atlas
 
@@ -42,8 +42,9 @@ On any Linux distribution, installing and setting up atlas is easy and is split 
 
 #### Setting up the client environment
 ```sh
-# export the required environment variables
-$ export ATLAS_ROOT=PATH_OF_ATLAS
+# export the required environment variable
+# replace the path to match to your local atlas installation
+$ export ATLAS_ROOT=/home/dkarnikis/atlas/
 # enter the source code folder of QuickJS for the client where $ATLAS_ROOT is the root folder of atlas 
 $ cd $ATLAS_ROOT/quickjs/src
 # build the client code, it will generate qjs binary 
@@ -55,7 +56,7 @@ $ cd $ATLAS_ROOT/atlas_client/
 $ cat $ATLAS_ROOT/atlas_client/atlas-addresses.txt
 # 7000 127.0.0.1
 # 7001 127.0.0.1
-# i may use max two servers, listening to ports 7000 and 7001
+# I may use max two servers, listening to ports 7000 and 7001
 ```
 
 #### Setting up the SGX environment
@@ -77,7 +78,7 @@ source /home/dkarnikis/SGX/sgxsdk/environment
 **SUGGUESTED** Be sure to follow the guide and install  [Intel SGX SDK](https://github.com/intel/linux-sgx) and [Intel SGX Driver](https://github.com/intel/linux-sgx-driver)  
 if you want to use SGX hardware.
 
-### Running atlas-workers with SGX HW/SIM
+### Running atlas-workers with SGX Hardware/Simulation
 ```sh
 # source the your SGX environment, in my case
 $ source /home/dkarnikis/SGX/sgxsdk/environment
@@ -132,11 +133,12 @@ docker-compose down
 $ cd $ATLAS_ROOT/quickjs/src
 # It will take some time to build the standalone quickjs interpreter
 $ make 
-# after this point, the binary is generated and is called qjs
+# after this point, the binary is generated and is called qjs and is located at
+$ATLAS_ROOT/quickjs/qjs
 ```
 
 ## Running Scripts
-All scripts in this guide assume that are being executed from  `$ATLAS_ROOT/atlas-client`
+All scripts in this guide assume that are being executed from `$ATLAS_ROOT/atlas-client`
 
 ### Hash Example
 
@@ -146,17 +148,22 @@ To run it **locally and sequentially**, you would call it using `--local` flag:
 ```sh
 $ATLAS_ROOT/quickjs/src/qjs atlas.js --local --file benchmarks/macro/crypto/streaming.js
 ```
-To run it **remotely** and assuming you have two servers and two local threads: 
+To run it **remotely** and assuming you have two servers and the local client(your main device for offloading): 
 ```sh
-# On the remote workers on the ports of your choice (7000, 7001 in my case)
+# go to each server and open the atlas-worker application to listen to a port
+cd $ATLAS_ROOT/atlas-worker/
+# I open my application and listen to port 7000
+./app -p 7000
+# On my second server, i use port 7001
 ./app -p 7001
-./app -p 7002
-# so my $ATLAS_ROOT/atlas_client/atlas-addresses.txt config looks like this
+# Back to your main client, alter your atlas-addresses.txt to match the PORT IP 
+# address for your two or more devices.
+# In my case, I am using localhost as my two server workers (so I am running everything including the workers locally)
 $ cat $ATLAS_ROOT/atlas_client/atlas-addresses.txt
 # 7000 127.0.0.1
 # 7001 127.0.0.1
 ##################
-$ATLAS_ROOT/quickjs/src/qjs daemon.js --threads 2 --servers 2 --file macro/crypto/streaming.js
+$ATLAS_ROOT/quickjs/src/qjs atlas.js --threads 2 --servers 2 --file benchmarks/macro/crypto/streaming.js
 ```
 The expected output log should be something similar to this (depending also on your hardware, network and offloading function)  
 ```sh
@@ -184,7 +191,10 @@ $ stdbuf -oL ../quickjs/src/qjs daemon.js --file macro/crypto/streaming.js --thr
 For our second demo application, we will be using a program fragment that performs a simple AES encrypt and sign. Using atlas we should only provide a data buffer (to be encrypted) but also a pair of cryptographic  keys (one used for the encryption and the second for the signing).  
 The source code for this JavaScript benchmark is located at `$ATLAS_ROOT/atlas-client/benchmarks/macro/eval/streaming.js`  
 To run it **locally and sequentially**, you would call it using `--local` flag:  
-```
+```sh
+# enter the atlas client
+cd $ATLAS_ROOT/atlas-client/
+# execute the code
 $ATLAS_ROOT/quickjs/src/qjs atlas.js --local --file benchmarks/macro/eval/streaming.js
 ```
 The expected output should be something like this:
@@ -202,7 +212,7 @@ The expected output should be something like this:
 ....
 ```
 
-For the remote offloading, I have already set up 4 remote atlas-workers with native SGX hardware capabilities.  
+For the remote offloading, I have already set up 4 remote atlas-workers with native SGX hardware capabilities (You may use the same configuration to use these machines).  
 All of the machines are equipped with Intel(R) Core(TM) i7-10710U CPU @ 1.10GHz and 64G RAM.  
 I have added their respective addresses in `atlas-addresses.txt` file:
 ```sh
@@ -237,7 +247,7 @@ The execution log should similar to this:
 ````
 
 
-By using different configs and setups(chaning the number of threads and threads from 1 to 4), we may get the following plot.  
+By using different configs (changing the number of threads and servers from 1 to 4), we may get the following plot:  
 ![](./imgs/plot.png)
 ## Repo Structure
 
