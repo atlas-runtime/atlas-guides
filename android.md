@@ -11,11 +11,10 @@ The only requirement is to download the required `cross-compiler` that will conv
 It simply generates binaries (similar to Linux) that may be executed on the terminal of Android. 
 
 ### Requirements - Steps
-Official Guide to setup NDK [here](Then follow [this](https://developer.android.com/ndk/guides/standalone_toolchain)
+Official Guide to setup NDK (https://developer.android.com/ndk/guides/standalone_toolchain)
 (you have to download an NDK, check step 1. below)
 
 1. First download the required Android Native Development Kit from [here](https://developer.android.com/ndk/downloads) (in my case it was version revivision 21 [from here](https://github.com/android/ndk/wiki/Unsupported-Downloads)  
-You can skip the steps below if you are using the official guide)
 2. Extract the downloaded `zip`, in my case  
 ```bash
 unzip android-ndk-r21e-linux-x86_64.zip
@@ -32,7 +31,7 @@ unzip android-ndk-r21e-linux-x86_64.zip
 ### Building atlas
 ```sh
 # fetch atlas repo
-bla bla
+TODO
 # build the interpreter for Android
 cd atlas-root/quickjs/src
 # the path that contains the cross-compiler binaries is 
@@ -65,6 +64,6 @@ Settings > Network & internet > Wi-Fi > The gear icon on the connected Wi-Fi > A
 ```sh
 # enter the root of atlas
 cd /data/local/tmp/atlas-root/atlas-client
-../quickjs/src/qjs --file macro/crypto/streaming.js --threads 2 --servers 2 --verbose
+../quickjs/src/qjs --file benchmarks/macro/crypto/streaming.js --threads 2 --servers 2 --verbose
 # you should see some results popping in your screen!
 ```
