@@ -11,11 +11,11 @@ Atlas is based on two main components:
     The orchistrating component written in JavaScript and is responsible for offloading execution requests. It also includes a modified QuickJS engine enhanced with networking, cryptography and other components
 * **atlas-worker**
     Modified QuickJS engine packed with an Intel SGX enclave enhanced with various security attributes
-### High level overview of Atlas
+## High level overview of Atlas
 
 Consider the following JavaScript code  
 ```js
-import {lib_a_} from './library_a.js';
+import {lib_a} from './library_a.js';
 import {atlas} from './atlas.js';
 atlas.wrap(lib_a)
 # Bootstrap the servers and setup the communicate channel 
@@ -34,13 +34,11 @@ At this point, we can start offloading requests (by calling the `schedule` funct
 
 ## Installation
 
-### Natively on Linux
-
 On any Linux distribution, installing and setting up atlas is easy and is split into two sections:  
  1. Install the client code
  2. Install and deploy on the cloud/local with SGX hardware/simulation mode
 
-#### Setting up the client environment
+### Setting up the client environment
 ```sh
 # export the required environment variable
 # replace the path to match to your local atlas installation
@@ -59,8 +57,8 @@ $ cat $ATLAS_ROOT/atlas_client/atlas-addresses.txt
 # I may use max two servers, listening to ports 7000 and 7001
 ```
 
-#### Setting up the SGX environment
-##### Simulation Mode
+### Setting up the SGX environment
+#### Simulation Mode
 (If you want to install with hardware support, skip this step)  
 If you want to try atlas **without** using real SGX hardware you do not have to setup the whole SGX infrastructure
 ```sh
@@ -73,9 +71,9 @@ cd SGX
 source /home/dkarnikis/SGX/sgxsdk/environment
 # You are now set to run atlas on simulation mode!
 ```
-##### Hardware Mode
-(If you have installed the simulated software, skip this step)
-**SUGGUESTED** Be sure to follow the guide and install  [Intel SGX SDK](https://github.com/intel/linux-sgx) and [Intel SGX Driver](https://github.com/intel/linux-sgx-driver)  
+#### Hardware Mode
+(If you have installed the simulated software, skip this step)  
+**SUGGUESTED** Be sure to follow the official Intel guide and install  [Intel SGX SDK](https://github.com/intel/linux-sgx) and [Intel SGX Driver](https://github.com/intel/linux-sgx-driver)  
 if you want to use SGX hardware.
 
 ### Running atlas-workers with SGX Hardware/Simulation
@@ -167,7 +165,7 @@ $ATLAS_ROOT/quickjs/src/qjs atlas.js --threads 2 --servers 2 --file benchmarks/m
 ```
 The expected output log should be something similar to this (depending also on your hardware, network and offloading function)  
 ```sh
-$ stdbuf -oL ../quickjs/src/qjs daemon.js --file macro/crypto/streaming.js --threads 2 --servers 2
+$ stdbuf -oL ../quickjs/src/qjs atlas.js --file benchmarks/macro/crypto/streaming.js --threads 2 --servers 2
 #Started Duration Latency Bytes Interval Return Mode Thread_ID Type Function 
 1.001   8.895   8.909   500000  800     9.91    remote  0       exec    SHA512  0 
 1.802   11.591  11.601  500000  800     13.403  remote  1       exec    SHA512  1 
