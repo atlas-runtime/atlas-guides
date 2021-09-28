@@ -246,9 +246,10 @@ The execution log should similar to this:
 ....
 ````
 
-
 By using different configs (changing the number of threads and servers from 1 to 4), we may get the following plot:  
-![](./imgs/plot.png)
+![](./imgs/plot.png)  
+All the avalable execution results for this plot may be found at 
+`logs` directory in the current repo.
 ## Repo Structure
 
 Atlas consist of four main components and a few additional "auxiliary" files and directories.  
