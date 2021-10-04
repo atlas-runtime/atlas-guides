@@ -263,7 +263,7 @@ All the avalable execution results for this plot may be found at
 Atlas consist of four main components and a few additional "auxiliary" files and directories.  
 The four main components are:  
 
-* **atlas-client**: The orchestrating component of the eco-system. It is responsible for connecting to the remote `atlas-workers`,  identifying the critical components of a library/module, allocating and generating cryptographic keys, offloading client requests to atlas servers and parsing the execution results. It combines the `analyses` library and the `quickjs` module.  
+* **atlas-client**: The orchestrating component of the eco-system. It is responsible for connecting to the remote `atlas-workers`,  identifying the critical components of a library/module, allocating and generating cryptographic keys, offloading client requests to atlas servers and parsing the execution results.
 
 * **atlas-worker**:  Stripped down-optimized JavaScript interpreter packed inside the SGX enclave. It setups a trusted end-to-end trusted communication channel with the client and then starts handling and executing offloading requests within the enclave. Code that may tamper or compromise enclave\'s confidentiality and integrity is stripped from the interpreter such as system-calls, calls to the untrusted part of the application or signals.  
 
