@@ -40,18 +40,24 @@ On any Linux distribution, installing and setting up atlas is easy and is split 
 
 ### Setting up the client environment
 ```sh
+# create the root folder for our project
+mkdir atlas_root && cd atlas_root
+# fetch the repo of the client
+git@github.com:atlas-runtime/atlas-client.git
+# fetch the atlas interpreter
+git clone git@github.com:atlas-runtime/atlas-qjs.git quickjs
 # export the required environment variable
 # replace the path to match to your local atlas installation
-$ export ATLAS_ROOT=/home/dkarnikis/atlas/
+$ export ATLAS_ROOT=/home/dkarnikis/atlas_root/
 # enter the source code folder of QuickJS for the client where $ATLAS_ROOT is the root folder of atlas 
 $ cd $ATLAS_ROOT/quickjs/src
 # build the client code, it will generate qjs binary 
 $ make qjs
 # return to the root directory and go to atlas-client 
-$ cd $ATLAS_ROOT/atlas_client/
+$ cd $ATLAS_ROOT/atlas-client/
 # edit the `atlas-addresses.txt` with your configuration in format `PORT IP`
 # in my case my atlas-addresses.txt contains
-$ cat $ATLAS_ROOT/atlas_client/atlas-addresses.txt
+$ cat $ATLAS_ROOT/atlas-client/atlas-addresses.txt
 # 7000 127.0.0.1
 # 7001 127.0.0.1
 # I may use max two servers, listening to ports 7000 and 7001
@@ -80,6 +86,8 @@ if you want to use SGX hardware.
 ```sh
 # source the your SGX environment, in my case
 $ source /home/dkarnikis/SGX/sgxsdk/environment
+# fetch the atlas worker
+git clone git@github.com:atlas-runtime/atlas-worker.git
 # enter the source code folder of the atlas-worker 
 $ cd $ATLAS_ROOT/atlas-worker
 # build the atlas worker enclave binary
@@ -258,7 +266,7 @@ The four main components are:
 
 * **atlas-worker**:  Stripped down-optimized JavaScript interpreter packed inside the SGX enclave. It setups a trusted end-to-end trusted communication channel with the client and then starts handling and executing offloading requests within the enclave. Code that may tamper or compromise enclave\'s confidentiality and integrity is stripped from the interpreter such as system-calls, calls to the untrusted part of the application or signals.  
 
-* **quickjs**: JavaScript Interpreter that runs on the client device. It is an enhanced version of [QuickJS](https://bellard.org/quickjs/quickjs.html) with native networking and cryptographic capabilities and other `atlas` features.
+* **atlas-qjs**: JavaScript Interpreter that runs on the client device. It is an enhanced version of [QuickJS](https://bellard.org/quickjs/quickjs.html) with native networking and cryptographic capabilities and other `atlas` features.
 
 ## What next?
 * Configurable Scheduler and rules
