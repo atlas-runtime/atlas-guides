@@ -30,8 +30,7 @@ unzip android-ndk-r21e-linux-x86_64.zip
 
 ### Building atlas
 ```sh
-# fetch atlas repo
-TODO
+# follow the guide on ./README.md on how to fetch and clone the atlas components
 # build the interpreter for Android
 cd atlas-root/quickjs/src
 # the path that contains the cross-compiler binaries is 
