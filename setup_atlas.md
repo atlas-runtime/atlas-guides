@@ -133,7 +133,7 @@ docker exec -it atlas_docker /bin/bash
 docker-compose down
 ```
 ---->
-### Building Atlas client interpreter
+### Building Atlas interpreter
 ```sh
 # go to the directory of the quickjs
 $ cd $ATLAS_ROOT/quickjs/src
