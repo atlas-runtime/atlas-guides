@@ -174,22 +174,23 @@ $ATLAS_ROOT/quickjs/src/qjs atlas.js --threads 2 --servers 2 --file benchmarks/m
 The expected output log should be something similar to this (depending also on your hardware, network and offloading function)  
 ```sh
 $ stdbuf -oL ../quickjs/src/qjs atlas.js --file benchmarks/macro/crypto/streaming.js --threads 2 --servers 2
-#Started Duration Latency Bytes Interval Return Mode Thread_ID Type Function 
-1.001   8.895   8.909   500000  800     9.91    remote  0       exec    SHA512  0 
-1.802   11.591  11.601  500000  800     13.403  remote  1       exec    SHA512  1 
-2.603   11.322  18.637  500000  800     21.24   remote  0       exec    SHA512  2 
-3.404   9.801   19.808  500000  800     23.212  remote  1       exec    SHA512  3 
-4.206   10.881  27.924  500000  800     32.13   remote  0       exec    SHA512  4 
-5.007   10.277  28.491  500000  800     33.498  remote  1       exec    SHA512  5 
-5.808   9.715   36.046  500000  800     41.854  remote  0       exec    SHA512  6 
-6.609   10.547  37.445  500000  800     44.054  remote  1       exec    SHA512  7 
-7.41    11.236  45.688  500000  800     53.098  remote  0       exec    SHA512  8 
-8.211   10.393  46.244  500000  800     54.455  remote  1       exec    SHA512  9 
-9.012   10.565  54.66   500000  800     63.672  remote  0       exec    SHA512  10 
-9.813   10.821  55.472  500000  700     65.285  remote  1       exec    SHA512  11 
-10.513  7.44    60.607  500000  700     71.12   remote  0       exec    SHA512  12 
-11.915  9.211   68.424  500000  700     80.339  remote  0       exec    SHA512  13 
-11.214  15.634  69.714  500000  700     80.928  remote  1       exec    SHA512  14 
+#Started  Duration  Latency  Bytes   Interval  Return  Mode   Thread_ID  Type  Function
+1.001   8.895   8.909   500000  800     9.91    remote  0       exec    SHA512  0
+1.802   11.591  11.601  500000  800     13.403  remote  1       exec    SHA512  1
+2.603   11.322  18.637  500000  800     21.24   remote  0       exec    SHA512  2
+3.404   9.801   19.808  500000  800     23.212  remote  1       exec    SHA512  3
+4.206   10.881  27.924  500000  800     32.13   remote  0       exec    SHA512  4
+5.007   10.277  28.491  500000  800     33.498  remote  1       exec    SHA512  5
+5.808   9.715   36.046  500000  800     41.854  remote  0       exec    SHA512  6
+6.609   10.547  37.445  500000  800     44.054  remote  1       exec    SHA512  7
+7.41    11.236  45.688  500000  800     53.098  remote  0       exec    SHA512  8
+8.211   10.393  46.244  500000  800     54.455  remote  1       exec    SHA512  9
+9.012   10.565  54.66   500000  800     63.672  remote  0       exec    SHA512  10
+9.813   10.821  55.472  500000  700     65.285  remote  1       exec    SHA512  11
+10.513  7.44    60.607  500000  700     71.12   remote  0       exec    SHA512  12
+11.915  9.211   68.424  500000  700     80.339  remote  0       exec    SHA512  13
+11.214  15.634  69.714  500000  700     80.928  remote  1       exec    SHA512  14
+....
 ```
 
 ### Encrypt and Sign
