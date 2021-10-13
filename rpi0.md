@@ -99,3 +99,18 @@ Now you may connect to the remote pi from your host machine by connecting to it.
 5. Type `yes` and then write `raspberry` when it asks for the password.  
 6. Finally you will be connected to the Raspberry PI remotely, running on bash!  
 7. You may now even disconnect the HDMI screen and the usb keyboard from the Raspberry, since you may do everything remotely (you only need the power cable)!  
+
+
+#### Additional Settings
+Due to the limited available RPI0 memory (~430MB), running memory-intensive applications  
+might be an issue. To overcome this problem, we need to increase the max available  
+swap memory (currently is set to 100MB).  
+To do so (on raspbian):  
+```sh
+# disable the swap
+sudo dphys-swapfile swapoff
+# modify the /etc/dphys-swapfile as root and edit the CONF_SWAPSIZE to 800MB --- you can change it
+CONF_SWAPSIZE=800
+# restart the swap file
+/etc/init.d/dphys-swapfile restart
+```
