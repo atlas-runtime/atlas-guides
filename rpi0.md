@@ -102,9 +102,7 @@ Now you may connect to the remote pi from your host machine by connecting to it.
 
 
 #### Additional Settings
-Due to the limited available RPI0 memory (~430MB), running memory-intensive applications  
-might be an issue. To overcome this problem, we need to increase the max available  
-swap memory (currently is set to 100MB).  
+Due to the limited available RPI0 memory (~430MB), running memory-intensive applications might be an issue. To overcome this problem, we need to increase the max available swap memory (currently is set to 100MB).  
 To do so (on raspbian):  
 ```sh
 # disable the swap
