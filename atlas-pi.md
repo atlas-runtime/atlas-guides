@@ -14,7 +14,7 @@ Two main componenents are needed for this guide:
 
 ## High level overview of Atlas
 
-Consider the following Javascript [math](https://github.com/atlas-runtime/atlas-client/blob/master/benchmarks/math/math.js) library
+Consider the following Javascript math library
 ```js
 function add(a, b) {
     return a + b;
@@ -35,7 +35,7 @@ math.mult = mult;
 math.div = div;
 export {math};
 ```
-And we want to perform some basic computation using this library such as:
+We want to perform some basic computations using this library, so we do the following:
 ```js
 import {math} from 'benchmarks/math/math.js';
 math.add(12,34).then(console.log);  // should print 12 + 34 = 46
@@ -45,13 +45,14 @@ math.mult(1,5).then(console.log);   // 5
 ```
 
 Since all the calls to atlas are asynchronous (using worker-threads), the results will also be returned asynchronously.
-Thus, that's why we are using the ```then```, to evaluate/resolve the ```async```/```promise``` calls.
-What really happens under the hood, is the following:
+Thus, that's why we are using the ```then``` keyword, to evaluate/resolve the ```async```/```promise``` calls.
+What really happen under the hood, are the following:
 1. We provide our driver code to atlas-interpreter
 2. While the code is being parsed, additional code is crafted on-the-fly and is injected to the original code
 3. Atlas detects all the imports and logs all the imports of the code
 4. After the module detection and the code injection is done, start the normal execution of Javascript
 5. Atlas offloads to the remote party the dependencies and the imports, so the server may setup the original context
+6. When JavaScript execution reaches to a wrapped library function call, atlas offloads each request
 
 The new generated code after step 3 will look similar to this:
 ```js
@@ -71,7 +72,7 @@ math.mult(1,5).then(console.log);   // 5
 
 On any Linux distribution, installing and setting up atlas is easy and is split into two sections:  
  1. Install the client code
- 2. Install and deploy on the cloud/local with SGX hardware/simulation mode
+ 2. Install the atlas interpreter
 
 ### Setting up the client environment
 ```sh
@@ -79,11 +80,16 @@ On any Linux distribution, installing and setting up atlas is easy and is split 
 mkdir atlas_root && cd atlas_root
 # fetch the repo of atlas-client
 git@github.com:atlas-runtime/atlas-client.git --depth 1
-# fetch the atlas interpreter
-git clone git@github.com:atlas-runtime/atlas-qjs.git --depth 1 quickjs
 # export the required environment variable
 # replace the path to match to your local atlas installation
 $ export ATLAS_ROOT=/home/dkarnikis/atlas_root/
+```
+
+### Setting up atlas interpreter
+```sh
+cd $ATLAS_ROOT
+# fetch the atlas interpreter
+git clone git@github.com:atlas-runtime/atlas-qjs.git --depth 1 quickjs
 # enter the source code folder of QuickJS for the client where $ATLAS_ROOT is the root folder of atlas 
 $ cd $ATLAS_ROOT/quickjs/src
 # build the client code, it will generate qjs binary 
@@ -96,6 +102,8 @@ $ cd $ATLAS_ROOT/atlas-client/
 
 ## Running Scripts
 All scripts in this guide assume that are being executed from `$ATLAS_ROOT/atlas-client`
+
+```In our evaluation, we are a using a Raspberry PI Zero Wireless with headers, a UPS HAT: Waveshare and Batteries: 2 x 18650 Li-ion 3400mAh 3.7V. In case you are using a different battery module, atlas battery functionality should be modified to match the vendor's battery API. In case atlas does not detect any battery module, the value -1 is returned to the battery status.```
 
 ### Math Example
 
@@ -114,17 +122,19 @@ Infinity
 ```
 
 To view each request's information and metadata, you may use the `--log` flag:
+
+
 ```sh
 $ $ATLAS_ROOT/quickjs/src/qjs atlas.js --local --file benchmarks/math/run.js --log log.dat
 # view the file log
 $ cat log.dat
 ######################################################################################################################
-#Start  Battery:80.16666666666669
-#Start  Duration                   Latency  Bytes      Interval  End    Mode   Thread_ID  Type  Function   Request_ID  Battery_Status
-0.482   0                          0.482    undefined  -1        0.482  local  -1         exec  math.add   0           80.16666666666669
-0.959   0                          0.959    undefined  -1        0.959  local  -1         exec  math.sub   0           80.16666666666669
-1.438   0                          1.438    undefined  -1        1.438  local  -1         exec  math.div   0           80.16666666666669
-1.918   0.001                      1.918    undefined  -1        1.918  local  -1         exec  math.mult  0           80.16666666666669    
+#Start  Battery:72.83333333333334
+#Start  Duration                   Latency  Bytes  Interval  End    Mode   Thread_ID  Type  Function   Request_ID  Battery_Status
+0.731   0                          0.731    7      -1        0.731  local  -1         exec  math.add   0           72.83333333333334
+1.206   0                          1.206    5      -1        1.206  local  -1         exec  math.sub   0           72.83333333333334
+1.683   0                          1.683    5      -1        1.683  local  -1         exec  math.div   0           72.83333333333334
+2.159   0                          2.159    5      -1        2.159  local  -1         exec  math.mult  0           72.83333333333334 
 ```
 
 To run it **remotely** and using our deployed SGX server:
@@ -135,17 +145,20 @@ The expected output log should be something similar to this (depending also on y
 ```sh
 $ cat log.dat
 ######################################################################################################################
-#Start Battery:80.16666666666669                                                 
-#Start Duration Latency Bytes Interval End Mode Thread_ID Type Function Request_ID Battery_Status
-0.481   0   0.481   undefined   -1  0.481   local   -1  exec    math.add    0   80.16666666666669
-0.958   0   0.958   undefined   -1  0.958   local   -1  exec    math.sub    0   80.16666666666669
-1.436   0   1.436   undefined   -1  1.436   local   -1  exec    math.div    0   80.16666666666669
-1.915   0   1.915   undefined   -1  1.915   local   -1  exec    math.mult   0   80.16666666666669
+#Start  Battery:72.83333333333334
+#Start  Duration                   Latency  Bytes  Interval  End    Mode    Thread_ID  Type  Function   Request_ID  Battery_Status
+1.392   0.49                       0.509    513    -1        1.901  remote  0          exec  math.add   0           72.83333333333334
+1.401   0.477                      0.996    186    -1        2.397  remote  0          exec  math.sub   1           72.83333333333334
+1.403   0.534                      1.545    186    -1        2.948  remote  0          exec  math.div   2           72.83333333333334
+1.405   0.538                      2.092    187    -1        3.497  remote  0          exec  math.mult  3           72.83333333333334
+
+
 ```
 
 ### Encrypt and Sign Example
 
-For our second demo application, we will be using a program fragment that performs a simple AES encrypt and HMAC Sign. Using atlas we should only provide a data buffer (to be encrypted) but also a pair of cryptographic keys (one used for the encryption and the second for the signing). 
+For our second demo application, we will be using a program fragment that performs a simple AES encrypt and HMAC Sign. Using atlas we should only provide a data buffer (to be encrypted) but also a pair of cryptographic keys (one used for the encryption and the second for the signing). In this benchmark, we are using a function called
+```generate_traffic``` that dynamically generates and 120 issues ```encrypt_sign``` requests at different time intervals. We hold a global array of promises to store every returned remote request. After ~120 have been received, the program runs ```Promise.allSettled``` on the global promise array to gather the execution results and atlas terminates.
 
 Our application is based on [crypto-es](https://github.com/entronad/crypto-es).
 
@@ -166,34 +179,25 @@ $ $ATLAS_ROOT/quickjs/src/qjs atlas.js --local --file benchmarks/crypto_benchmar
 The expected output should be something like this:
 ```sh
 $ cat crypto_l.dat
-#Start  Duration  Latency  Bytes      Interval  End     Mode   Thread_ID  Type  Function                 Request_ID  Battery_Status
-0.936   0.615     1.551    undefined  800       1.551   local  -1         exec  AES.encrypt              0           80.66666666666666
-2.034   1.002     3.036    undefined  800       3.037   local  -1         exec  sha.HmacSHA512           0           80.33333333333333
-0.936   2.584     3.521    undefined  800       3.521   local  -1         exec  benchmarks.encrypt_sign  0           80.33333333333333
-4.813   0.644     5.457    undefined  800       5.457   local  -1         exec  AES.encrypt              1           80.33333333333333
-5.942   1.002     6.944    undefined  800       6.944   local  -1         exec  sha.HmacSHA512           1           80.33333333333333
-4.812   2.616     7.428    undefined  800       7.428   local  -1         exec  benchmarks.encrypt_sign  1           80.33333333333333
-8.716   0.659     9.375    undefined  800       9.375   local  -1         exec  AES.encrypt              2           80.33333333333333
-9.862   0.999     10.862   undefined  800       10.862  local  -1         exec  sha.HmacSHA512           2           80.33333333333333
-8.715   2.631     11.346   undefined  800       11.346  local  -1         exec  benchmarks.encrypt_sign  2           80.33333333333333
-12.638  0.651     13.289   undefined  800       13.289  local  -1         exec  AES.encrypt              3           80.33333333333333
-13.772  0.997     14.769   undefined  800       14.769  local  -1         exec  sha.HmacSHA512           3           80.33333333333333
-12.637  2.615     15.252   undefined  800       15.252  local  -1         exec  benchmarks.encrypt_sign  3           80.33333333333333
-16.542  0.667     17.209   undefined  800       17.209  local  -1         exec  AES.encrypt              4           80.33333333333333
-17.696  1         18.696   undefined  800       18.696  local  -1         exec  sha.HmacSHA512           4           80.33333333333333
-16.542  2.636     19.178   undefined  800       19.178  local  -1         exec  benchmarks.encrypt_sign  4           80.33333333333333
-20.47   0.672     21.142   undefined  800       21.142  local  -1         exec  AES.encrypt              5           80.33333333333333
-21.628  1.005     22.633   undefined  800       22.633  local  -1         exec  sha.HmacSHA512           5           80.33333333333333
-20.469  2.65      23.119   undefined  800       23.119  local  -1         exec  benchmarks.encrypt_sign  5           80.33333333333333
-24.409  0.654     25.063   undefined  800       25.063  local  -1         exec  AES.encrypt              6           80.33333333333333
-25.552  1.008     26.56    undefined  800       26.56   local  -1         exec  sha.HmacSHA512           6           80.33333333333333
-24.408  2.644     27.052   undefined  800       27.052  local  -1         exec  benchmarks.encrypt_sign  6           80.33333333333333
-28.346  0.637     28.983   undefined  800       28.983  local  -1         exec  AES.encrypt              7           80.33333333333333
-29.467  0.994     30.461   undefined  800       30.461  local  -1         exec  sha.HmacSHA512           7           80.33333333333333
-28.345  2.602     30.947   undefined  800       30.947  local  -1         exec  benchmarks.encrypt_sign  7           80.33333333333333
-32.237  0.659     32.896   undefined  800       32.896  local  -1         exec  AES.encrypt              8           80.33333333333333
-33.38   1.004     34.384   undefined  800       34.384  local  -1         exec  sha.HmacSHA512           8           80.33333333333333
-32.236  2.636     34.872   undefined  800       34.872  local  -1         exec  benchmarks.encrypt_sign  8           80.33333333333333
+#Start  Battery:72.33333333333333
+#Start  Duration                   Latency  Bytes  Interval  End     Mode   Thread_ID  Type  Function                 Request_ID  Battery_Status
+0.643   0.668                      1.311    10038  800       1.311   local  -1         exec  benchmarks.encrypt_sign  1           72.33333333333333
+2.59    0.701                      3.291    10038  800       3.291   local  -1         exec  benchmarks.encrypt_sign  2           72.50000000000001
+4.572   0.703                      5.275    10038  800       5.275   local  -1         exec  benchmarks.encrypt_sign  3           72.50000000000001
+6.557   0.702                      7.259    10038  800       7.259   local  -1         exec  benchmarks.encrypt_sign  4           72.50000000000001
+8.542   0.707                      9.249    10038  800       9.249   local  -1         exec  benchmarks.encrypt_sign  5           72.50000000000001
+10.536  0.707                      11.243   10038  800       11.243  local  -1         exec  benchmarks.encrypt_sign  6           72.50000000000001
+12.526  0.697                      13.224   10038  800       13.224  local  -1         exec  benchmarks.encrypt_sign  7           72.50000000000001
+14.505  0.707                      15.212   10038  800       15.212  local  -1         exec  benchmarks.encrypt_sign  8           72.50000000000001
+16.494  0.695                      17.189   10038  800       17.189  local  -1         exec  benchmarks.encrypt_sign  9           72.50000000000001
+18.471  0.705                      19.176   10038  800       19.176  local  -1         exec  benchmarks.encrypt_sign  10          72.50000000000001
+20.457  0.701                      21.158   10038  800       21.158  local  -1         exec  benchmarks.encrypt_sign  11          72.50000000000001
+22.443  0.709                      23.152   10038  700       23.152  local  -1         exec  benchmarks.encrypt_sign  12          72.33333333333333
+24.334  0.699                      25.032   10038  700       25.032  local  -1         exec  benchmarks.encrypt_sign  13          72.33333333333333
+26.212  0.701                      26.913   10038  700       26.913  local  -1         exec  benchmarks.encrypt_sign  14          72.50000000000001
+28.098  0.69                       28.788   10038  700       28.788  local  -1         exec  benchmarks.encrypt_sign  15          72.50000000000001
+29.97   0.711                      30.681   10038  700       30.681  local  -1         exec  benchmarks.encrypt_sign  16          72.50000000000001
+31.861  0.713                      32.574   10038  700       32.574  local  -1         exec  benchmarks.encrypt_sign  17          72.50000000000001
 ....
 ```
 
@@ -208,30 +212,28 @@ The execution log should similar to this:
 
 ```sh
 $ cat crypto_r.dat
-#Start  Duration  Latency  Bytes   Interval  End     Mode    Thread_ID  Type  Function                 Request_ID  Battery_Status
-1.929   1.86      1.942    117317  800       3.871   remote  0          exec  benchmarks.encrypt_sign  0           82.16666666666669
-2.741   1.098     2.312    39142   800       5.053   remote  0          exec  benchmarks.encrypt_sign  1           82.16666666666669
-3.547   1.085     2.674    39142   800       6.221   remote  0          exec  benchmarks.encrypt_sign  2           82.16666666666669
-4.445   0.949     2.786    39142   800       7.231   remote  0          exec  benchmarks.encrypt_sign  3           82.16666666666669
-5.623   0.953     2.625    39142   800       8.248   remote  0          exec  benchmarks.encrypt_sign  4           82.16666666666669
-6.768   0.934     2.49     39142   800       9.258   remote  0          exec  benchmarks.encrypt_sign  5           82.16666666666669
-7.796   0.942     2.463    39142   800       10.259  remote  0          exec  benchmarks.encrypt_sign  6           82.16666666666669
-8.822   0.94      2.439    39142   800       11.261  remote  0          exec  benchmarks.encrypt_sign  7           82.16666666666669
-9.81    1.062     2.585    39142   800       12.395  remote  0          exec  benchmarks.encrypt_sign  8           82.16666666666669
-10.83   1.1       2.735    39142   800       13.565  remote  0          exec  benchmarks.encrypt_sign  9           82.33333333333334
-11.83   0.929     2.725    39144   800       14.555  remote  0          exec  benchmarks.encrypt_sign  10          82.16666666666669
-12.947  0.94      2.609    39144   700       15.556  remote  0          exec  benchmarks.encrypt_sign  11          82.16666666666669
-14.136  0.941     2.446    39144   700       16.582  remote  0          exec  benchmarks.encrypt_sign  12          82.16666666666669
-15.126  0.937     2.465    39144   700       17.591  remote  0          exec  benchmarks.encrypt_sign  13          82.16666666666669
-16.13   0.985     2.518    39144   700       18.648  remote  0          exec  benchmarks.encrypt_sign  14          82.16666666666669
-17.143  1.113     2.693    39144   700       19.836  remote  0          exec  benchmarks.encrypt_sign  15          82.16666666666669
-18.139  1.156     2.942    39144   700       21.081  remote  0          exec  benchmarks.encrypt_sign  16          82.33333333333334
-19.223  0.962     2.884    39144   700       22.107  remote  0          exec  benchmarks.encrypt_sign  17          82.16666666666669
-20.412  1.179     2.944    39144   700       23.357  remote  0          exec  benchmarks.encrypt_sign  18          82.16666666666669
-21.654  0.804     2.583    39144   700       24.237  remote  0          exec  benchmarks.encrypt_sign  19          82.16666666666669
-22.679  0.932     2.556    39144   700       25.235  remote  0          exec  benchmarks.encrypt_sign  20          82.33333333333334
-23.92   0.935     2.317    39144   700       26.237  remote  0          exec  benchmarks.encrypt_sign  21          82.16666666666669
-24.787  0.946     2.463    39144   700       27.25   remote  0          exec  benchmarks.encrypt_sign  22          82.16666666666669
-25.812  0.937     2.462    39144   700       28.275  remote  0          exec  benchmarks.encrypt_sign  23          82.16666666666669
+#Start  Battery:72.50000000000001
+#Start  Duration                   Latency  Bytes  Interval  End     Mode    Thread_ID  Type  Function                 Request_ID  Battery_Status
+1.6     1.448                      1.521    88248  800       3.121   remote  0          exec  benchmarks.encrypt_sign  0           72.50000000000001
+2.418   0.553                      1.308    10252  800       3.726   remote  0          exec  benchmarks.encrypt_sign  1           72.50000000000001
+3.676   0.534                      0.609    10252  800       4.285   remote  0          exec  benchmarks.encrypt_sign  2           72.50000000000001
+4.765   0.549                      0.567    10252  800       5.332   remote  0          exec  benchmarks.encrypt_sign  3           72.50000000000001
+5.847   0.552                      0.569    10252  800       6.416   remote  0          exec  benchmarks.encrypt_sign  4           72.50000000000001
+6.914   0.548                      0.566    10252  800       7.48    remote  0          exec  benchmarks.encrypt_sign  5           72.50000000000001
+7.992   0.556                      0.573    10252  800       8.565   remote  0          exec  benchmarks.encrypt_sign  6           72.50000000000001
+9.078   0.553                      0.57     10252  800       9.648   remote  0          exec  benchmarks.encrypt_sign  7           72.50000000000001
+10.168  0.563                      0.58     10252  800       10.748  remote  0          exec  benchmarks.encrypt_sign  8           72.50000000000001
+11.258  0.548                      0.565    10252  800       11.823  remote  0          exec  benchmarks.encrypt_sign  9           72.50000000000001
+12.34   0.561                      0.579    10254  800       12.919  remote  0          exec  benchmarks.encrypt_sign  10          72.50000000000001
+13.424  0.556                      0.576    10254  700       14      remote  0          exec  benchmarks.encrypt_sign  11          72.50000000000001
+14.517  0.551                      0.568    10254  700       15.085  remote  0          exec  benchmarks.encrypt_sign  12          72.50000000000001
+15.604  0.556                      0.574    10254  700       16.178  remote  0          exec  benchmarks.encrypt_sign  13          72.50000000000001
+16.69   0.562                      0.58     10254  700       17.27   remote  0          exec  benchmarks.encrypt_sign  14          72.50000000000001
+17.785  0.587                      0.605    10254  700       18.39   remote  0          exec  benchmarks.encrypt_sign  15          72.50000000000001
+18.886  0.556                      0.574    10254  700       19.46   remote  0          exec  benchmarks.encrypt_sign  16          72.50000000000001
+19.976  0.556                      0.573    10254  700       20.549  remote  0          exec  benchmarks.encrypt_sign  17          72.50000000000001
 ....
 ````
+
+In the remote case, the Request with ID = 17, returns to the user at 20.549s whereas in the local execution it needs 32.574s, which is 58.51% slower!
+We could even increase this difference when using much faster network connections but also changing the transmitted buffers!
