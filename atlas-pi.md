@@ -1,9 +1,15 @@
 # Deploying Atlas on Raspberry PI Zero
-Quick jump: [Introduction](#introduction) | [Installation](#installation) | [Repo Structure](#repo-structure) | [Running Scripts](#running-scripts) | [What Next?](#what-next)
+Quick jump: [Introduction](#introduction) | [Installation](#installation) | [Running Scripts](#running-scripts)
 
 This tutorial focuses strictly on installing and deploying atlas on Raspberry PI without the need
 of installing Intel SGX (we have already deployed a pre-configured Intel SGX worker-server ready to handle requests).
 
+In order to setup and deploy SGX servers, follow [this](https://github.com/atlas-runtime/atlas-guides/blob/main/setup_atlas.md) guide.
+
+**In our evaluation, we are a using a Raspberry PI Zero Wireless with headers, a UPS HAT: Waveshare and Batteries: 
+2 x 18650 Li-ion 3400mAh 3.7V. In case you are using a different battery module, atlas battery functionality 
+should be modified to match the vendor's battery API. In case atlas does not detect any battery
+module, the value -1 is returned to the battery status.**
 ## Introduction
 
 Two main componenents are needed for this guide:
@@ -104,7 +110,10 @@ $ cd $ATLAS_ROOT/atlas-client/
 ## Running Scripts
 All scripts in this guide assume that are being executed from `$ATLAS_ROOT/atlas-client`
 
-```In our evaluation, we are a using a Raspberry PI Zero Wireless with headers, a UPS HAT: Waveshare and Batteries: 2 x 18650 Li-ion 3400mAh 3.7V. In case you are using a different battery module, atlas battery functionality should be modified to match the vendor's battery API. In case atlas does not detect any battery module, the value -1 is returned to the battery status.```
+**In our evaluation, we are a using a Raspberry PI Zero Wireless with headers, a UPS HAT: Waveshare and Batteries: 
+2 x 18650 Li-ion 3400mAh 3.7V. In case you are using a different battery module, atlas battery functionality 
+should be modified to match the vendor's battery API. In case atlas does not detect any battery
+module, the value -1 is returned to the battery status.**
 
 ### Math Example
 
