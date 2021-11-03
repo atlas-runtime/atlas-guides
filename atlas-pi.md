@@ -158,7 +158,7 @@ $ cat log.dat
 ### Encrypt and Sign Example
 
 For our second demo application, we will be using a program fragment that performs a simple AES encrypt and HMAC Sign. Using atlas we should only provide a data buffer (to be encrypted) but also a pair of cryptographic keys (one used for the encryption and the second for the signing). In this benchmark, we are using a function called
-```generate_traffic``` that dynamically generates and 120 issues ```encrypt_sign``` requests at different time intervals. We hold a global array of promises to store every returned remote request. After ~120 have been received, the program runs ```Promise.allSettled``` on the global promise array to gather the execution results and atlas terminates.
+```generate_traffic``` that dynamically generates and 120 issues ```encrypt_sign``` requests at different time intervals. We hold a global array of promises to store every returned remote request. After ~120 requests have been received, the program runs ```Promise.allSettled``` on the global promise array to gather the execution results and atlas terminates.
 
 Our application is based on [crypto-es](https://github.com/entronad/crypto-es).
 
