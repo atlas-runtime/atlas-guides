@@ -1,7 +1,8 @@
 # Deploying Atlas on Raspberry PI Zero
 Quick jump: [Introduction](#introduction) | [Installation](#installation) | [Repo Structure](#repo-structure) | [Running Scripts](#running-scripts) | [What Next?](#what-next)
 
-This tutorial focuses strictly on installing and deploying atlas on Raspberry PI.
+This tutorial focuses strictly on installing and deploying atlas on Raspberry PI without the need
+of installing Intel SGX (we have already deployed a pre-configured Intel SGX worker-server ready to handle requests).
 
 ## Introduction
 
