@@ -1,10 +1,10 @@
 # Deploying Atlas on Raspberry PI Zero
 Quick jump: [Introduction](#introduction) | [Installation](#installation) | [Running Scripts](#running-scripts)
 
+In order to setup and deploy SGX servers, follow [this](https://github.com/atlas-runtime/atlas-guides/blob/main/setup_atlas.md) guide first.
 This tutorial focuses strictly on installing and deploying atlas on Raspberry PI without the need
 of installing Intel SGX (we have already deployed a pre-configured Intel SGX worker-server ready to handle requests).
 
-In order to setup and deploy SGX servers, follow [this](https://github.com/atlas-runtime/atlas-guides/blob/main/setup_atlas.md) guide.
 
 **In our evaluation, we are a using a Raspberry PI Zero Wireless with headers, a UPS HAT: Waveshare and Batteries: 
 2 x 18650 Li-ion 3400mAh 3.7V. In case you are using a different battery module, atlas battery functionality 
@@ -215,7 +215,7 @@ $ cat crypto_l.dat
 # goto atlas-client folder
 $ cd $ATLAS_ROOT/atlas-client;
 # this specific test, starts generating packets dynamically at different intervals
-$ $ATLAS_ROOT/quickjs/src/qjs atlas.js --file benchmarks/macro/eval/streaming.js --servers 1 --log crypto_r.log
+$ $ATLAS_ROOT/quickjs/src/qjs atlas.js --file benchmarks/crypto_benchmark/run.js --servers 1 --log crypto_r.log
 ```
 
 The execution log should similar to this:
