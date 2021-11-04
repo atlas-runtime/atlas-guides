@@ -1,15 +1,20 @@
 # Deploying Atlas on Raspberry PI Zero
-Quick jump: [Introduction](#introduction) | [Installation](#installation) | [Running Scripts](#running-scripts)
+
+Quick jump: [Introduction](#introduction) | [Installation](#installation) | [Running Scripts](#running-scripts) | [Remote Offloading](#remote-offloading)
 
 In order to setup and deploy SGX servers, follow [this](https://github.com/atlas-runtime/atlas-guides/blob/main/setup_atlas.md) guide first.
 This tutorial focuses strictly on installing and deploying atlas on Raspberry PI without the need
-of installing Intel SGX (we have already deployed a pre-configured Intel SGX worker-server ready to handle requests).
+of installing Intel SGX.
+
+If you're interested in testing remote offloading, you can follow the instructions in
+[Remote Offloading](#remote-offloading).
 
 
-**In our evaluation, we are a using a Raspberry PI Zero Wireless with headers, a UPS HAT: Waveshare and Batteries: 
-2 x 18650 Li-ion 3400mAh 3.7V. In case you are using a different battery module, atlas battery functionality 
+**In our evaluation, we are a using a Raspberry PI Zero Wireless with headers, a UPS HAT: Waveshare and Batteries:
+2 x 18650 Li-ion 3400mAh 3.7V. In case you are using a different battery module, atlas battery functionality
 should be modified to match the vendor's battery API. In case atlas does not detect any battery
 module, the value -1 is returned to the battery status.**
+
 ## Introduction
 
 Two main componenents are needed for this guide:
@@ -19,7 +24,7 @@ Two main componenents are needed for this guide:
 * **atlas-qjs**
     Modified QuickJS engine packed with cryptographic and networking capabilities. Also, it performs transformations to the user-code at parsing phase, to automatically wrapp the user-code.
 
-## High level overview of Atlas
+### High level overview of Atlas
 
 Consider the following Javascript math library
 ```js
@@ -77,50 +82,54 @@ math.mult(1,5).then(console.log);   // 5
 
 ## Installation
 
-On any Linux distribution, installing and setting up atlas is easy and is split into two sections:  
+On any Linux distribution, installing and setting up atlas is easy and is split into two sections:
  1. Install the client code
  2. Install the atlas interpreter
 
 ### Setting up the client environment
+
 ```sh
 # create the root folder for our project
-mkdir atlas_root && cd atlas_root
-# fetch the repo of atlas-client
-git@github.com:atlas-runtime/atlas-client.git --depth 1
-# export the required environment variable
-# replace the path to match to your local atlas installation
-$ export ATLAS_ROOT=/home/dkarnikis/atlas_root/
+$ mkdir ~/atlas_root && cd ~/atlas_root
+$ echo "export ATLAS_ROOT=`pwd`" >> ~/.bashrc
+$ source ~/.bashrc
+```
+
+Fetch the repo of atlas-client:
+```sh
+$ cd $ATLAS_ROOT
+$ git clone git@github.com:atlas-runtime/atlas-client.git --depth 1
 ```
 
 ### Setting up atlas interpreter
 ```sh
-cd $ATLAS_ROOT
+$ cd $ATLAS_ROOT
 # fetch the atlas interpreter
-git clone git@github.com:atlas-runtime/atlas-qjs.git --depth 1 quickjs
-# enter the source code folder of QuickJS for the client where $ATLAS_ROOT is the root folder of atlas 
+$ git clone git@github.com:atlas-runtime/atlas-qjs.git --depth 1 quickjs
+# enter the source code folder of QuickJS for the client where $ATLAS_ROOT is the root folder of atlas
 $ cd $ATLAS_ROOT/quickjs/src
-# build the client code, it will generate qjs binary 
+# build the client code, it will generate qjs binary.
+# This will take a while since the rpi 0 is so low
+# power. You will see some compiler warnings, this is okay.
 $ make qjs
-# return to the root directory and go to atlas-client 
-$ cd $ATLAS_ROOT/atlas-client/
-# edit the `atlas-addresses.txt` with your configuration in format `PORT IP`
-# For the purpose of this demo, I have deployed already deployed a remote worker, ready to handle requests
 ```
 
 ## Running Scripts
+
 All scripts in this guide assume that are being executed from `$ATLAS_ROOT/atlas-client`
 
-**In our evaluation, we are a using a Raspberry PI Zero Wireless with headers, a UPS HAT: Waveshare and Batteries: 
-2 x 18650 Li-ion 3400mAh 3.7V. In case you are using a different battery module, atlas battery functionality 
+**In our evaluation, we are a using a Raspberry PI Zero Wireless with headers, a UPS HAT: Waveshare and Batteries:
+2 x 18650 Li-ion 3400mAh 3.7V. In case you are using a different battery module, atlas battery functionality
 should be modified to match the vendor's battery API. In case atlas does not detect any battery
 module, the value -1 is returned to the battery status.**
 
 ### Math Example
 
 The simplest way to try out atlas is executing `math` library, that performs simple arithmetic operations.
-The file JavaScript file is located at `$ATLAS_ROOT/atlas-client/benchmarks/math/math.js`  
-To run it **locally and sequentially**, you would call it using `--local` flag:  
+The file JavaScript file is located at `$ATLAS_ROOT/atlas-client/benchmarks/math/math.js`
+To run it **locally and sequentially**, pass the `--local` flag:
 ```sh
+$ cd $ATLAS_ROOT/atlas-client
 $ $ATLAS_ROOT/quickjs/src/qjs atlas.js --local --file benchmarks/math/run.js
 ```
 The expected output is:
@@ -133,7 +142,6 @@ Infinity
 
 To view each request's information and metadata, you may use the `--log` flag:
 
-
 ```sh
 $ $ATLAS_ROOT/quickjs/src/qjs atlas.js --local --file benchmarks/math/run.js --log log.dat
 # view the file log
@@ -144,42 +152,31 @@ $ cat log.dat
 0.731   0                          0.731    7      -1        0.731  local  -1         exec  math.add   0           72.83333333333334
 1.206   0                          1.206    5      -1        1.206  local  -1         exec  math.sub   0           72.83333333333334
 1.683   0                          1.683    5      -1        1.683  local  -1         exec  math.div   0           72.83333333333334
-2.159   0                          2.159    5      -1        2.159  local  -1         exec  math.mult  0           72.83333333333334 
+2.159   0                          2.159    5      -1        2.159  local  -1         exec  math.mult  0           72.83333333333334
 ```
 
-To run it **remotely** and using our deployed SGX server:
-```sh
-$ $ATLAS_ROOT/quickjs/src/qjs atlas.js --servers 1 --file benchmarks/math/run.js --log log.dat
-```
-The expected output log should be something similar to this (depending also on your hardware, network and offloading function)  
-```sh
-$ cat log.dat
-######################################################################################################################
-#Start  Battery:72.83333333333334
-#Start  Duration                   Latency  Bytes  Interval  End    Mode    Thread_ID  Type  Function   Request_ID  Battery_Status
-1.392   0.49                       0.509    513    -1        1.901  remote  0          exec  math.add   0           72.83333333333334
-1.401   0.477                      0.996    186    -1        2.397  remote  0          exec  math.sub   1           72.83333333333334
-1.403   0.534                      1.545    186    -1        2.948  remote  0          exec  math.div   2           72.83333333333334
-1.405   0.538                      2.092    187    -1        3.497  remote  0          exec  math.mult  3           72.83333333333334
+### Encrypt and Sign Test
 
-
-```
-
-### Encrypt and Sign Example
-
-For our second demo application, we will be using a program fragment that performs a simple AES encrypt and HMAC Sign. Using atlas we should only provide a data buffer (to be encrypted) but also a pair of cryptographic keys (one used for the encryption and the second for the signing). In this benchmark, we are using a function called
-```generate_traffic``` that dynamically generates and 120 issues ```encrypt_sign``` requests at different time intervals. We hold a global array of promises to store every returned remote request. After ~120 requests have been received, the program runs ```Promise.allSettled``` on the global promise array to gather the execution results and atlas terminates.
+For our second demo application, we will be using a program fragment that
+performs a simple AES encrypt and HMAC Sign. Using atlas we should only provide
+a data buffer (to be encrypted) but also a pair of cryptographic keys (one used
+for the encryption and the second for the signing). In this benchmark, we are
+using a function called `generate_traffic` that dynamically generates and 120
+issues `encrypt_sign` requests at different time intervals. We hold a global
+array of promises to store every returned remote request. After ~120 requests
+have been received, the program runs `Promise.allSettled` on the global
+promise array to gather the execution results and atlas terminates.
 
 Our application is based on [crypto-es](https://github.com/entronad/crypto-es).
 
-The source code for this JavaScript benchmark is located at 
-`$ATLAS_ROOT/atlas-client/benchmarks/crypto-benchmark/run.js` 
+The source code for this JavaScript benchmark is located at
+`$ATLAS_ROOT/atlas-client/benchmarks/crypto-benchmark/run.js`
 
 and our custom crypto wrapper for encrypt and sign
 
 `$ATLAS_ROOT/atlas-client/benchmarks/crypto_benchmark/crypto-wrapper.js`
 
-To run it **locally and sequentially**, you would call it using `--local` flag:  
+To run it **locally and sequentially**, pass the `--local` flag:
 ```sh
 # enter the atlas client
 $ cd $ATLAS_ROOT/atlas-client/
@@ -210,6 +207,40 @@ $ cat crypto_l.dat
 31.861  0.713                      32.574   10038  700       32.574  local  -1         exec  benchmarks.encrypt_sign  17          72.50000000000001
 ....
 ```
+
+## Remote Offloading
+
+We have already deployed a pre-configured Intel SGX worker-server ready to handle requests to make testing easier. We
+can also provide instructions for deploying your own server.
+
+### SetUp
+
+```sh
+# Go to the atlas-client folder
+$ cd $ATLAS_ROOT/atlas-client/
+# edit the `atlas-addresses.txt` with your configuration in format `PORT IP`
+# For the purpose of this demo, we have already deployed a remote worker, ready to handle requests
+```
+
+### Math Example script
+
+```sh
+$ $ATLAS_ROOT/quickjs/src/qjs atlas.js --servers 1 --file benchmarks/math/run.js --log log.dat
+```
+
+The expected output log should be something similar to this (depending also on your hardware, network and offloading function)
+```sh
+$ cat log.dat
+######################################################################################################################
+#Start  Battery:72.83333333333334
+#Start  Duration                   Latency  Bytes  Interval  End    Mode    Thread_ID  Type  Function   Request_ID  Battery_Status
+1.392   0.49                       0.509    513    -1        1.901  remote  0          exec  math.add   0           72.83333333333334
+1.401   0.477                      0.996    186    -1        2.397  remote  0          exec  math.sub   1           72.83333333333334
+1.403   0.534                      1.545    186    -1        2.948  remote  0          exec  math.div   2           72.83333333333334
+1.405   0.538                      2.092    187    -1        3.497  remote  0          exec  math.mult  3           72.83333333333334
+```
+
+### Encrypt and Sign Test
 
 ```sh
 # goto atlas-client folder
