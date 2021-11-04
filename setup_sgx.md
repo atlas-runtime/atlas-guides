@@ -1,5 +1,4 @@
 # A Short SGX Tutorial
-Quick jump: [Introduction](#introduction) | [Installation](#installation) 
 
 This short tutorial covers the installation of SGX for `atlas`'s deployment.
 
