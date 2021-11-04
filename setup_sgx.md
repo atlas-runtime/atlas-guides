@@ -41,5 +41,6 @@ $ make SGX_MODE=HW/SIM
 # 7000 127.0.0.1
 ```
 After this point, you may start offloading requests to the remote SGX worker (after you have properly edited the `atlas-addresses.txt` to contain the PORT IP of your server) from the client.
+
 In order to run and test `atlas` follow [this](https://github.com/atlas-runtime/atlas-guides/blob/main/atlas_pi.md) guide 
 after finishing SGX installation.
