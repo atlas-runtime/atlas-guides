@@ -119,12 +119,14 @@ $ cat log.dat
 For our second demo application, we will be using a program fragment that
 performs a simple AES encrypt and HMAC Sign. Using atlas we should only provide
 a data buffer (to be encrypted) but also a pair of cryptographic keys (one used
-for the encryption and the second for the signing). In this benchmark, we are
-using a function called `generate_traffic` that dynamically generates and 120
-issues `encrypt_sign` requests at different time intervals. We hold a global
-array of promises to store every returned remote request. After ~120 requests
-have been received, the program runs `Promise.allSettled` on the global
-promise array to gather the execution results and atlas terminates.
+for the encryption and the second for the signing).
+
+In this benchmark, we are using a function called `generate_traffic` that
+dynamically generates and issues 120 `encrypt_sign` requests at different time
+intervals. We hold a global array of promises to store every returned remote
+request. After ~120 requests have been received, the program runs
+`Promise.allSettled` on the global promise array to gather the execution
+results and then terminates.
 
 Our application is based on [crypto-es](https://github.com/entronad/crypto-es).
 
@@ -175,7 +177,7 @@ We have already deployed a pre-configured Intel SGX worker-server ready to handl
 If you're interested in deploying your own SGX server, follow
 [this guide](https://github.com/atlas-runtime/atlas-guides/blob/main/setup_atlas.md) first.
 
-### SetUp
+### Set Up
 
 ```sh
 # Go to the atlas-client folder
