@@ -1,89 +1,43 @@
 # Deploying Atlas on Raspberry PI Zero
 
-Quick jump: [Introduction](#introduction) | [Installation](#installation) | [Running Scripts](#running-scripts) | [Remote Offloading](#remote-offloading)
+Quick jump: [Introduction](#introduction) | [Installation](#installation) | [Running](#running) | [Remote Offloading](#remote-offloading) | [How Atlas works](#how-atlas-works)
 
-In order to setup and deploy SGX servers, follow [this](https://github.com/atlas-runtime/atlas-guides/blob/main/setup_atlas.md) guide first.
-This tutorial focuses strictly on installing and deploying atlas on Raspberry PI without the need
+This guide focuses strictly on installing and deploying atlas on Raspberry PI without the need
 of installing Intel SGX.
 
-If you're interested in testing remote offloading, you can follow the instructions in
-[Remote Offloading](#remote-offloading).
-
-
-**In our evaluation, we are a using a Raspberry PI Zero Wireless with headers, a UPS HAT: Waveshare and Batteries:
-2 x 18650 Li-ion 3400mAh 3.7V. In case you are using a different battery module, atlas battery functionality
-should be modified to match the vendor's battery API. In case atlas does not detect any battery
-module, the value -1 is returned to the battery status.**
+If you're interested in testing remote offloading, you can follow the instructions in the
+[Remote Offloading](#remote-offloading) section below.
 
 ## Introduction
 
-Two main componenents are needed for this guide:
+Two components are needed to run ATLAS:
 
 * **atlas-client**
-    The orchistrating component written in JavaScript and is responsible for offloading execution requests.
+    The orchestrating component written in JavaScript that is responsible for offloading execution requests.
 * **atlas-qjs**
-    Modified QuickJS engine packed with cryptographic and networking capabilities. Also, it performs transformations to the user-code at parsing phase, to automatically wrapp the user-code.
+    Modified [QuickJS](https://bellard.org/quickjs/) engine packed with
+    cryptographic and networking capabilities. It also performs code
+    transformations during parsing phase to provide secure guarantees about the
+    code being executed.
 
-### High level overview of Atlas
+### Important Note on Battery Measurements
 
-Consider the following Javascript math library
-```js
-function add(a, b) {
-    return a + b;
-}
-function sub(a, b) {
-    return a - b;
-}
-function mult(a, b) {
-    return a * b;
-}
-function div(a, b) {
-    return a / b;
-}
-let math = {};
-math.add = add;
-math.sub = sub;
-math.mult = mult;
-math.div = div;
-export {math};
-```
-We want to perform some basic computations using this library, so we do the following:
-```js
-import {math} from 'benchmarks/math/math.js';
-math.add(12,34).then(console.log);  // should print 12 + 34 = 46
-math.sub(1,6).then(console.log);    // 1/6 = 0.16666666666
-math.div(1,0).then(console.log);    // Infinity
-math.mult(1,5).then(console.log);   // 5
-```
+We have found that every Raspberry PI battery has a different API to get usage
+statistics.  In our evaluation, we are a using a Raspberry PI Zero Wireless
+with headers, a UPS HAT: Waveshare and Batteries: 2 x 18650 Li-ion 3400mAh
+3.7V.
 
-Since all the calls to atlas are asynchronous (using worker-threads), the results will also be returned asynchronously.
-Thus, that's why we are using the ```then``` keyword, to evaluate/resolve the ```async```/```promise``` calls.
-What really happen under the hood, are the following:
-1. We provide our driver code to atlas-interpreter
-2. While the code is being parsed, additional code is crafted on-the-fly and is injected to the original code
-3. Atlas detects all the imports and logs all the imports of the code
-4. After the module detection and the code injection is done, start the normal execution of Javascript
-5. Atlas offloads to the remote party the dependencies and the imports, so the server may setup the original context
-6. When JavaScript execution reaches to a wrapped library function call, atlas offloads each request
-
-The new generated code after step 3 will look similar to this:
-```js
-import {math} from 'benchmarks/math/math.js';
-if (globalThis.mathiswrapped === false) {  // have we already wrapped the library?
-    math = atlas_wrapper(math);            // wrap the library using atlas, so it can be automatically scaled-out
-    globalThis.mathiswrapped = true;       // math is wrapped
-}
-// then, all the next calls to math, we be offloaded using atlas!
-math.add(12,34).then(console.log);  // should print 12 + 34 = 46
-math.sub(1,6).then(console.log);    // 1/6 = 0.16666666666
-math.div(1,0).then(console.log);    // Infinity
-math.mult(1,5).then(console.log);   // 5
-```
+If you are using a different battery module, ATLAS' battery functionality
+will need to be modified to match the vendor's battery API. In case atlas does
+not detect any battery module, the value -1 is returned to the battery status.
 
 ## Installation
 
-On any Linux distribution, installing and setting up atlas is easy and is split into two sections:
- 1. Install the client code
+We assume you already have a Raspberry PI ready to go. If you need help setting
+this up, you can follow [this guide](https://github.com/atlas-runtime/atlas-guides/blob/main/rpi0.md).
+
+Installing and setting up ATLAS is easy and is split into two sections:
+ 1. Install the client environment
  2. Install the atlas interpreter
 
 ### Setting up the client environment
@@ -102,6 +56,7 @@ $ git clone git@github.com:atlas-runtime/atlas-client.git --depth 1
 ```
 
 ### Setting up atlas interpreter
+
 ```sh
 $ cd $ATLAS_ROOT
 # fetch the atlas interpreter
@@ -114,14 +69,18 @@ $ cd $ATLAS_ROOT/quickjs/src
 $ make qjs
 ```
 
-## Running Scripts
+## Running
 
 All scripts in this guide assume that are being executed from `$ATLAS_ROOT/atlas-client`
 
-**In our evaluation, we are a using a Raspberry PI Zero Wireless with headers, a UPS HAT: Waveshare and Batteries:
-2 x 18650 Li-ion 3400mAh 3.7V. In case you are using a different battery module, atlas battery functionality
-should be modified to match the vendor's battery API. In case atlas does not detect any battery
-module, the value -1 is returned to the battery status.**
+**IMPORTANT**
+
+As mentioned before, we have found that different battery modules have
+different APIs for measuring battery consumption. Our testbed uses a Raspberry
+PI Zero Wireless with headers, a UPS HAT: Waveshare and Batteries: 2 x 18650
+Li-ion 3400mAh 3.7V. If you are using a different battery module, we will need
+to augment ATLAS to support that vendor's battery API. In case atlas does not
+detect any battery module, the value -1 is printed to the battery status column.
 
 ### Math Example
 
@@ -183,7 +142,9 @@ $ cd $ATLAS_ROOT/atlas-client/
 # execute the code
 $ $ATLAS_ROOT/quickjs/src/qjs atlas.js --local --file benchmarks/crypto_benchmark/run.js --log crypto_l.dat
 ```
-The expected output should be something like this:
+
+This should take about 2-3 minutes.  The expected output should be something like this:
+
 ```sh
 $ cat crypto_l.dat
 #Start  Battery:72.33333333333333
@@ -210,8 +171,9 @@ $ cat crypto_l.dat
 
 ## Remote Offloading
 
-We have already deployed a pre-configured Intel SGX worker-server ready to handle requests to make testing easier. We
-can also provide instructions for deploying your own server.
+We have already deployed a pre-configured Intel SGX worker-server ready to handle requests to make testing easier.
+If you're interested in deploying your own SGX server, follow
+[this guide](https://github.com/atlas-runtime/atlas-guides/blob/main/setup_atlas.md) first.
 
 ### SetUp
 
@@ -219,7 +181,7 @@ can also provide instructions for deploying your own server.
 # Go to the atlas-client folder
 $ cd $ATLAS_ROOT/atlas-client/
 # edit the `atlas-addresses.txt` with your configuration in format `PORT IP`
-# For the purpose of this demo, we have already deployed a remote worker, ready to handle requests
+# For the purpose of this guide, we have already deployed a remote worker, ready to handle requests
 ```
 
 ### Math Example script
@@ -244,12 +206,13 @@ $ cat log.dat
 
 ```sh
 # goto atlas-client folder
-$ cd $ATLAS_ROOT/atlas-client;
+$ cd $ATLAS_ROOT/atlas-client
 # this specific test, starts generating packets dynamically at different intervals
 $ $ATLAS_ROOT/quickjs/src/qjs atlas.js --file benchmarks/crypto_benchmark/run.js --servers 1 --log crypto_r.log
 ```
 
-The execution log should similar to this:
+This should take about 1 minute (compare with the 2-3 minutes that it took in the local case).
+The execution log should look similar to this:
 
 ```sh
 $ cat crypto_r.dat
@@ -278,3 +241,60 @@ $ cat crypto_r.dat
 
 In the remote case, the Request with ID = 17, returns to the user at 20.549s whereas in the local execution it needs 32.574s, which is 58.51% slower!
 We could even increase this difference when using much faster network connections but also changing the transmitted buffers!
+
+## How Atlas works
+
+Consider the following Javascript math library
+```js
+function add(a, b) {
+    return a + b;
+}
+function sub(a, b) {
+    return a - b;
+}
+function mult(a, b) {
+    return a * b;
+}
+function div(a, b) {
+    return a / b;
+}
+let math = {};
+math.add = add;
+math.sub = sub;
+math.mult = mult;
+math.div = div;
+export {math};
+```
+We want to perform some basic computations using this library, so we do the following:
+```js
+import {math} from 'benchmarks/math/math.js';
+math.add(12,34).then(console.log);  // should print 12 + 34 = 46
+math.sub(1,6).then(console.log);    // 1/6 = 0.16666666666
+math.div(1,0).then(console.log);    // Infinity
+math.mult(1,5).then(console.log);   // 5
+```
+
+Since all the calls to atlas are asynchronous (using worker-threads), the results will also be returned asynchronously.
+Thus, we need to use the `then` keyword to evaluate/resolve the `async/promise` calls.
+
+Here's what happens under the hood:
+1. We provide our driver code to the atlas-interpreter
+2. While the code is being parsed, additional code is crafted on-the-fly and is injected to the original code
+3. Atlas detects all the imports and logs them.
+4. After the module detection and the code injection is done, normal execution of Javascript starts.
+5. If enabled, Atlas offloads to the remote party the dependencies and the imports, so the server may replicate the original context.
+6. When JavaScript execution reaches to a wrapped library function call, atlas offloads each request.
+
+The new generated code after step 3 will look similar to this:
+```js
+import {math} from 'benchmarks/math/math.js';
+if (globalThis.mathiswrapped === false) {  // have we already wrapped the library?
+    math = atlas_wrapper(math);            // wrap the library using atlas, so it can be automatically scaled-out
+    globalThis.mathiswrapped = true;       // math is wrapped
+}
+// then, all the next calls to math, we be offloaded using atlas!
+math.add(12,34).then(console.log);  // should print 12 + 34 = 46
+math.sub(1,6).then(console.log);    // 1/6 = 0.16666666666
+math.div(1,0).then(console.log);    // Infinity
+math.mult(1,5).then(console.log);   // 5
+```
