@@ -84,8 +84,8 @@ detect any battery module, the value -1 is printed to the battery status column.
 
 ### Math Example
 
-The simplest way to try out atlas is executing `math` library, that performs simple arithmetic operations.
-The file JavaScript file is located at `$ATLAS_ROOT/atlas-client/benchmarks/math/math.js`
+The simplest way to try out atlas is by using the `math` library which performs simple arithmetic operations.
+The JavaScript file for this example is located at `$ATLAS_ROOT/atlas-client/benchmarks/math/math.js`
 To run it **locally and sequentially**, pass the `--local` flag:
 ```sh
 $ cd $ATLAS_ROOT/atlas-client
