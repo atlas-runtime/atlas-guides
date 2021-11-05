@@ -86,6 +86,7 @@ detect any battery module, the value -1 is printed to the battery status column.
 
 The simplest way to try out atlas is by using the `math` library which performs simple arithmetic operations.
 The JavaScript file for this example is located at `$ATLAS_ROOT/atlas-client/benchmarks/math/math.js`
+
 To run it **locally and sequentially**, pass the `--local` flag:
 ```sh
 $ cd $ATLAS_ROOT/atlas-client
@@ -149,9 +150,9 @@ This should take about 2-3 minutes.  The expected output should be something lik
 
 ```sh
 $ cat crypto_l.dat
-#Start  Battery:72.33333333333333
+#Start  Battery:72.50000000000001
 #Start  Duration                   Latency  Bytes  Interval  End     Mode   Thread_ID  Type  Function                 Request_ID  Battery_Status
-0.643   0.668                      1.311    10038  800       1.311   local  -1         exec  benchmarks.encrypt_sign  1           72.33333333333333
+0.643   0.668                      1.311    10038  800       1.311   local  -1         exec  benchmarks.encrypt_sign  1           72.50000000000001
 2.59    0.701                      3.291    10038  800       3.291   local  -1         exec  benchmarks.encrypt_sign  2           72.50000000000001
 4.572   0.703                      5.275    10038  800       5.275   local  -1         exec  benchmarks.encrypt_sign  3           72.50000000000001
 6.557   0.702                      7.259    10038  800       7.259   local  -1         exec  benchmarks.encrypt_sign  4           72.50000000000001
