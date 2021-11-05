@@ -1,12 +1,13 @@
 # Deploying Atlas on Raspberry PI Zero
 
-Quick jump: [Introduction](#introduction) | [Installation](#installation) | [Running](#running) | [Remote Offloading](#remote-offloading) | [How Atlas works](#how-atlas-works)
+Quick jump: [Introduction](#introduction) | [Installation](#installation) | [Running](#running) | [Remote Offloading](#remote-offloading)
 
 This guide focuses strictly on installing and deploying atlas on Raspberry PI without the need
 of installing Intel SGX.
 
-If you're interested in testing remote offloading, you can follow the instructions in the
-[Remote Offloading](#remote-offloading) section below.
+If you're interested in testing remote offloading using an Intel SGX server,
+you can follow the instructions in the [Remote Offloading](#remote-offloading)
+section below.
 
 ## Introduction
 
@@ -30,6 +31,63 @@ with headers, a UPS HAT: Waveshare and Batteries: 2 x 18650 Li-ion 3400mAh
 If you are using a different battery module, ATLAS' battery functionality
 will need to be modified to match the vendor's battery API. In case atlas does
 not detect any battery module, the value -1 is returned to the battery status.
+
+### System Overview
+
+Consider the following Javascript math library
+```js
+function add(a, b) {
+    return a + b;
+}
+function sub(a, b) {
+    return a - b;
+}
+function mult(a, b) {
+    return a * b;
+}
+function div(a, b) {
+    return a / b;
+}
+let math = {};
+math.add = add;
+math.sub = sub;
+math.mult = mult;
+math.div = div;
+export {math};
+```
+We want to perform some basic computations using this library, so we do the following:
+```js
+import {math} from 'benchmarks/math/math.js';
+math.add(12,34).then(console.log);  // should print 12 + 34 = 46
+math.sub(1,6).then(console.log);    // 1/6 = 0.16666666666
+math.div(1,0).then(console.log);    // Infinity
+math.mult(1,5).then(console.log);   // 5
+```
+
+Since all the calls to atlas are asynchronous (using worker-threads), the results will also be returned asynchronously.
+Thus, we need to use the `then` keyword to evaluate/resolve the `async/promise` calls.
+
+Here's what happens under the hood:
+1. We provide our driver code to the atlas-interpreter
+2. While the code is being parsed, additional code is crafted on-the-fly and is injected to the original code
+3. Atlas detects all the imports and logs them.
+4. After the module detection and the code injection is done, normal execution of Javascript starts.
+5. If enabled, Atlas offloads to the remote party the dependencies and the imports, so the server may replicate the original context.
+6. When JavaScript execution reaches to a wrapped library function call, atlas offloads each request.
+
+The new generated code after step 3 will look similar to this:
+```js
+import {math} from 'benchmarks/math/math.js';
+if (globalThis.mathiswrapped === false) {  // have we already wrapped the library?
+    math = atlas_wrapper(math);            // wrap the library using atlas, so it can be automatically scaled-out
+    globalThis.mathiswrapped = true;       // math is wrapped
+}
+// then, all the next calls to math, we be offloaded using atlas!
+math.add(12,34).then(console.log);  // should print 12 + 34 = 46
+math.sub(1,6).then(console.log);    // 1/6 = 0.16666666666
+math.div(1,0).then(console.log);    // Infinity
+math.mult(1,5).then(console.log);   // 5
+```
 
 ## Installation
 
@@ -245,59 +303,4 @@ $ cat crypto_r.dat
 In the remote case, the Request with ID = 17, returns to the user at 20.549s whereas in the local execution it needs 32.574s, which is 58.51% slower!
 We could even increase this difference when using much faster network connections but also changing the transmitted buffers!
 
-## How Atlas works
 
-Consider the following Javascript math library
-```js
-function add(a, b) {
-    return a + b;
-}
-function sub(a, b) {
-    return a - b;
-}
-function mult(a, b) {
-    return a * b;
-}
-function div(a, b) {
-    return a / b;
-}
-let math = {};
-math.add = add;
-math.sub = sub;
-math.mult = mult;
-math.div = div;
-export {math};
-```
-We want to perform some basic computations using this library, so we do the following:
-```js
-import {math} from 'benchmarks/math/math.js';
-math.add(12,34).then(console.log);  // should print 12 + 34 = 46
-math.sub(1,6).then(console.log);    // 1/6 = 0.16666666666
-math.div(1,0).then(console.log);    // Infinity
-math.mult(1,5).then(console.log);   // 5
-```
-
-Since all the calls to atlas are asynchronous (using worker-threads), the results will also be returned asynchronously.
-Thus, we need to use the `then` keyword to evaluate/resolve the `async/promise` calls.
-
-Here's what happens under the hood:
-1. We provide our driver code to the atlas-interpreter
-2. While the code is being parsed, additional code is crafted on-the-fly and is injected to the original code
-3. Atlas detects all the imports and logs them.
-4. After the module detection and the code injection is done, normal execution of Javascript starts.
-5. If enabled, Atlas offloads to the remote party the dependencies and the imports, so the server may replicate the original context.
-6. When JavaScript execution reaches to a wrapped library function call, atlas offloads each request.
-
-The new generated code after step 3 will look similar to this:
-```js
-import {math} from 'benchmarks/math/math.js';
-if (globalThis.mathiswrapped === false) {  // have we already wrapped the library?
-    math = atlas_wrapper(math);            // wrap the library using atlas, so it can be automatically scaled-out
-    globalThis.mathiswrapped = true;       // math is wrapped
-}
-// then, all the next calls to math, we be offloaded using atlas!
-math.add(12,34).then(console.log);  // should print 12 + 34 = 46
-math.sub(1,6).then(console.log);    // 1/6 = 0.16666666666
-math.div(1,0).then(console.log);    // Infinity
-math.mult(1,5).then(console.log);   // 5
-```
