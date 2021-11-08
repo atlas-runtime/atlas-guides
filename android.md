@@ -64,5 +64,5 @@ Settings > Network & internet > Wi-Fi > The gear icon on the connected Wi-Fi > A
 # enter the root of atlas
 cd /data/local/tmp/atlas-root/atlas-client
 ../quickjs/src/qjs --file benchmarks/crypto_benchmark/run.js --servers 1
-# you should see some results popping in your screen!
+# the procedure is similar to running atlas on Raspberry PI
 ```
